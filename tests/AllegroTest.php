@@ -6,10 +6,10 @@ use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
 
 /**
- * Class AllegroAdapterTest
+ * Class AllegroTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class AllegroAdapterTest extends \PHPUnit_Framework_TestCase
+class AllegroTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Allegro $adapter */
     protected $adapter = null;
