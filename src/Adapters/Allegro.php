@@ -68,6 +68,12 @@ class Allegro extends AbstractAdapter
     /**
      * Perform login operation, store and return user session
      *
+     * (
+            [sessionHandlePart] => ABC123
+            [userId] => 1234
+            [serverTime] => 1234
+        )
+
      * @return array
      */
     public function doLogin()
@@ -100,8 +106,18 @@ class Allegro extends AbstractAdapter
         return $this->userSession;
     }
 
-    public function getTest()
+    /**
+     * This method provides all functions of “Selling” tabs available in My Allegro.
+     * Additionally it allows for sorting and filtering offers and searching by name.
+     */
+    public function getMySells()
     {
-
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetMySellItems',
+                [
+                    'sessionId' => $this->doLogin()['sessionHandlePart']
+                ]
+            );
     }
 }
