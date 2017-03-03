@@ -3,10 +3,10 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 /**
- * Class AllegroAdapter
+ * Class Allegro
  * @package clagiordano\MarketplacesDataExport\Adapters
  */
-class AllegroAdapter extends AbstractAdapter
+class Allegro extends AbstractAdapter
 {
 
 }

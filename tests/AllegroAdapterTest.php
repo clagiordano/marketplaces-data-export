@@ -2,7 +2,7 @@
 
 namespace clagiordano\MarketplacesDataExport\Tests;
 
-use clagiordano\MarketplacesDataExport\Adapters\AllegroAdapter;
+use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
 
 /**
@@ -11,7 +11,7 @@ use clagiordano\MarketplacesDataExport\Config;
  */
 class AllegroAdapterTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var AllegroAdapter $adapter */
+    /** @var Allegro $adapter */
     protected $adapter = null;
 
     public function setUp()
@@ -19,7 +19,7 @@ class AllegroAdapterTest extends \PHPUnit_Framework_TestCase
         $config = new Config(__DIR__ . '/../testdata/allegro.php');
         var_dump($config);
 
-        $this->adapter = new AllegroAdapter($config);
+        $this->adapter = new Allegro($config);
         $this->assertInstanceOf(
             'clagiordano\MarketplacesDataExport\Adapters\AllegroAdapter',
             $this->adapter
