@@ -14,6 +14,9 @@ class Allegro extends AbstractAdapter
     protected $resourceLink = null;
     /** @var array $userSession */
     protected $userSession = null;
+    /** @var array $apiInfo */
+    protected $apiInfo = null;
+
     /**
      * Allegro constructor.
      * @param Config $config
@@ -31,18 +34,61 @@ class Allegro extends AbstractAdapter
      *
      * @return array
      */
-    public function getSystemStatus()
+    public function getApiInfo()
     {
-        return $this->getSoapClient($this->resourceLink, true)
-            ->call(
-                'doQueryAllSysStatus',
+        if (!is_null($this->apiInfo)) {
+            return $this->apiInfo;
+        }
+
+        $client = $this->getSoapClient($this->resourceLink, true);
+        $infoData = $client->call(
+            'doQueryAllSysStatus',
+            [
                 [
-                    [
-                        'countryId' => $this->adapterConfig->countryCode,
-                        'webapiKey' => $this->adapterConfig->apiKey
+                    'countryId' => $this->adapterConfig->countryCode,
+                    'webapiKey' => $this->adapterConfig->apiKey
+                ]
+            ]
+        );
+
+        if (isset($infoData['sysCountryStatus']['item'])) {
+            foreach ($infoData['sysCountryStatus']['item'] as $info) {
+                if ($info['countryId'] == $this->adapterConfig->countryCode) {
+                    return $info;
+                }
+            }
+        }
+
+        throw new \InvalidArgumentException(
+            __METHOD__ . ": Failed to get system information, please check configuration"
+
+        );
+    }
+
+    public function doLogin()
+    {
+        $this->userSession = $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doLoginEnc',
+                [
+                    'parameters' => [
+                        'userLogin' => $this->adapterConfig->userLogin,
+                        'userHashPassword' => base64_encode(hash('sha256', $this->adapterConfig->userPassword, true)),
+                        'countryCode' => $this->adapterConfig->countryCode,
+                        'webapiKey' => $this->adapterConfig->apiKey,
+                        'localVersion' => (int)$this->getApiInfo()['verKey']
                     ]
                 ]
             );
+
+        if (!isset($this->userSession['sessionHandlePart'])) {
+            throw new \InvalidArgumentException(
+                __METHOD__ . ": Failed to logIn, please check configuration"
+
+            );
+        }
+
+        return $this;
     }
 
     public function getTest()

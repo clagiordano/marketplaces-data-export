@@ -29,13 +29,22 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-//    public function testGetSoapClient()
-//    {
-//        var_dump($this->adapter->getSoapClient('https://webapi.allegro.pl/service.php?wsdl', true));
-//    }
-
-    public function testGetSystemStatus()
+    /**
+     * @group internal
+     * @group info
+     */
+    public function testGetApiInfo()
     {
-        print_r($this->adapter->getSystemStatus());
+        $this->assertInternalType('array', $this->adapter->getApiInfo());
+        $this->assertNotNull($this->adapter->getApiInfo()['verKey']);
+    }
+
+    /**
+     * @group internal
+     * @group login
+     */
+    public function testDoLogin()
+    {
+        $this->adapter->doLogin();
     }
 }
