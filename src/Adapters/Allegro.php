@@ -30,7 +30,7 @@ class Allegro extends AbstractAdapter
     }
 
     /**
-     * Returns allegro system informations
+     * Returns allegro system information
      *
      * @return array
      */
@@ -40,16 +40,16 @@ class Allegro extends AbstractAdapter
             return $this->apiInfo;
         }
 
-        $client = $this->getSoapClient($this->resourceLink, true);
-        $infoData = $client->call(
-            'doQueryAllSysStatus',
-            [
+        $infoData = $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doQueryAllSysStatus',
                 [
-                    'countryId' => $this->adapterConfig->countryCode,
-                    'webapiKey' => $this->adapterConfig->apiKey
+                    [
+                        'countryId' => $this->adapterConfig->countryCode,
+                        'webapiKey' => $this->adapterConfig->apiKey
+                    ]
                 ]
-            ]
-        );
+            );
 
         if (isset($infoData['sysCountryStatus']['item'])) {
             foreach ($infoData['sysCountryStatus']['item'] as $info) {
@@ -65,8 +65,17 @@ class Allegro extends AbstractAdapter
         );
     }
 
+    /**
+     * Perform login operation, store and return user session
+     *
+     * @return array
+     */
     public function doLogin()
     {
+        if (!is_null($this->userSession)) {
+            return $this->userSession;
+        }
+
         $this->userSession = $this->getSoapClient($this->resourceLink, true)
             ->call(
                 'doLoginEnc',
@@ -88,7 +97,7 @@ class Allegro extends AbstractAdapter
             );
         }
 
-        return $this;
+        return $this->userSession;
     }
 
     public function getTest()
