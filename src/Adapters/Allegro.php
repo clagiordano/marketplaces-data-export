@@ -26,6 +26,11 @@ class Allegro extends AbstractAdapter
         $this->resourceLink = $resourceLink;
     }
 
+    /**
+     * Returns allegro system informations
+     *
+     * @return array
+     */
     public function getSystemStatus()
     {
         return $this->getSoapClient($this->resourceLink, true)

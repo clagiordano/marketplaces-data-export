@@ -32,7 +32,7 @@ abstract class AbstractAdapter implements ExportInterface
      * @param bool $isWsdl
      * @return \nusoap_client
      */
-    public function getSoapClient($resourceLink, $isWsdl = false)
+    protected function getSoapClient($resourceLink, $isWsdl = false)
     {
         if (is_null($this->soapClient)) {
             $this->soapClient = new \nusoap_client($resourceLink, $isWsdl);

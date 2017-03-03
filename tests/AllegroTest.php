@@ -16,7 +16,10 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $config = new Config(__DIR__ . '/../testdata/allegro.php');
+        $configFile = __DIR__ . '/../testdata/allegro.php';
+        $this->assertFileExists($configFile);
+
+        $config = new Config($configFile);
         $this->assertInstanceOf('clagiordano\MarketplacesDataExport\Config', $config);
 
         $this->adapter = new Allegro($config, 'https://webapi.allegro.pl/service.php?wsdl');
@@ -26,13 +29,13 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetSoapClient()
-    {
+//    public function testGetSoapClient()
+//    {
 //        var_dump($this->adapter->getSoapClient('https://webapi.allegro.pl/service.php?wsdl', true));
-    }
+//    }
 
     public function testGetSystemStatus()
     {
-//        var_dump($this->adapter->getSystemStatus());
+        print_r($this->adapter->getSystemStatus());
     }
 }
