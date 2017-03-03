@@ -9,7 +9,7 @@ use clagiordano\MarketplacesDataExport\Interfaces\ExportInterface;
  * Class AbstractAdapter
  * @package clagiordano\MarketplacesDataExport\Adapters
  */
-class AbstractAdapter implements ExportInterface
+abstract class AbstractAdapter implements ExportInterface
 {
     /** @var Config $adapterConfig */
     protected $adapterConfig = null;
@@ -32,12 +32,17 @@ class AbstractAdapter implements ExportInterface
      * @param bool $isWsdl
      * @return \nusoap_client
      */
-    protected function getSoapClient($resourceLink, $isWsdl = false)
+    public function getSoapClient($resourceLink, $isWsdl = false)
     {
         if (is_null($this->soapClient)) {
             $this->soapClient = new \nusoap_client($resourceLink, $isWsdl);
         }
 
         return $this->soapClient;
+    }
+
+    protected function doCall($functionName, array $functionArgs)
+    {
+
     }
 }
