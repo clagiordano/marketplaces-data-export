@@ -109,12 +109,31 @@ class Allegro extends AbstractAdapter
     /**
      * This method provides all functions of “Selling” tabs available in My Allegro.
      * Additionally it allows for sorting and filtering offers and searching by name.
+     *
+     * @return mixed
      */
-    public function getMySells()
+    public function getMySellItems()
     {
         return $this->getSoapClient($this->resourceLink, true)
             ->call(
                 'doGetMySellItems',
+                [
+                    'sessionId' => $this->doLogin()['sessionHandlePart']
+                ]
+            );
+    }
+
+    /**
+     * This method provides all functions of ”Sold” tabs available in My Allegro.
+     * Additionally it allows for sorting and filtering offers and searching by name.
+     *
+     * @return mixed
+     */
+    public function getMySoldItems()
+    {
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetMySoldItems',
                 [
                     'sessionId' => $this->doLogin()['sessionHandlePart']
                 ]

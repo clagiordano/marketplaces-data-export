@@ -54,7 +54,18 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMySells()
     {
-        $sells = $this->adapter->getMySells();
+        $sells = $this->adapter->getMySellItems();
+
+        print_r($sells);
+    }
+
+    /**
+     * @group public
+     * @group solds
+     */
+    public function testGetMySolds()
+    {
+        $sells = $this->adapter->getMySoldItems();
 
         print_r($sells);
     }
