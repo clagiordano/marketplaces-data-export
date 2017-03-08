@@ -68,12 +68,6 @@ class Allegro extends AbstractAdapter
     /**
      * Perform login operation, store and return user session
      *
-     * (
-            [sessionHandlePart] => ABC123
-            [userId] => 1234
-            [serverTime] => 1234
-        )
-
      * @return array
      */
     public function doLogin()
@@ -176,4 +170,52 @@ class Allegro extends AbstractAdapter
                 $params
             );
     }
+
+    /**
+     *﻿This method allows for loading single purchase events concluded by a given buyer in an indicated offer
+     * (in which a logged-in user acts as the seller). That method returns only purchase events which is not paid yet
+     * while calling the method. The exception is a situation when a purchase had been paid for but the payment
+     * has been cancelled - that purchase is treated as unpaid and information about it will be returned.
+     * In case of providing an incorrect user identifier an empty structure is returned.
+     *
+     * @param int $itemId
+     * @param int $buyerId
+     * @return array
+     */
+    public function getDeals($itemId, $buyerId)
+    {
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetDeals',
+                [
+                    'sessionId' => $this->doLogin()['sessionHandlePart'],
+                    'itemId' => $itemId,
+                    'buyerId' => $buyerId
+                ]
+            );
+    }
+
+    /**
+     * ﻿This method allows for loading full contact data of trading partners from the given offer.
+     * It returns various data - depends on whether a logged user acts as a seller (userData, userSentToData)
+     * or a buyer (userData, userBankAccounts, companySecondAddress) in an offer. In case of providing an incorrect
+     * offer identifier an empty structure is returned. The method does not return data for offers moved
+     * to the archive.
+     *
+     * @param array $itemsArray
+     * @return array
+     */
+    public function getBuyerData(array $itemsArray)
+    {
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetPostBuyData',
+                [
+                    'sessionHandle' => $this->doLogin()['sessionHandlePart'],
+                    'itemsArray' => $itemsArray
+                ]
+            );
+    }
+
+
 }

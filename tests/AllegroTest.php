@@ -55,8 +55,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
     public function testGetMySells()
     {
         $sells = $this->adapter->getMySellItems();
-
-        print_r($sells);
+        $this->assertInternalType('array', $sells);
     }
 
     /**
@@ -66,8 +65,13 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
     public function testGetMySolds()
     {
         $sells = $this->adapter->getMySoldItems();
+        $this->assertInternalType('array', $sells);
 
-        print_r($sells);
+        $this->assertArrayHasKey('soldItemsList', $sells);
+        $this->assertInternalType('array', $sells['soldItemsList']);
+
+        $this->assertArrayHasKey('item', $sells['soldItemsList']);
+        $this->assertInternalType('array', $sells['soldItemsList']['item']);
     }
 
     /**
@@ -76,8 +80,37 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetUserInfoByUserId()
     {
-        $sells = $this->adapter->getUserInfo(336686);
+        $info = $this->adapter->getUserInfo(336686);
+        $this->assertInternalType('array', $info);
+    }
 
-        print_r($sells);
+    /**
+     * @group public
+     * @group deals
+     */
+    public function testGetDeals()
+    {
+        $sells = $this->adapter->getMySoldItems();
+
+        foreach ($sells['soldItemsList'] as $item) {
+            $this->assertArrayHasKey('itemId', $item);
+
+            $this->assertArrayHasKey('itemHighestBidder', $item);
+            $this->assertInternalType('array', $item['itemHighestBidder']);
+
+            $this->assertArrayHasKey('userId', $item['itemHighestBidder']);
+            $this->assertArrayHasKey('userLogin', $item['itemHighestBidder']);
+
+            var_dump($item['itemId']);
+//            var_dump($item['itemHighestBidder']['userId']);
+
+//            $userInfo = $this->adapter->getUserInfo($item['itemHighestBidder']['userId']);
+//            print_r($userInfo);
+
+//            $deals = $this->adapter->getDeals($item['itemId'], $item['itemHighestBidder']['userId']);
+//            print_r($deals);
+            $buyerData = $this->adapter->getBuyerData([$item['itemId']]);
+            print_r($buyerData);
+        }
     }
 }
