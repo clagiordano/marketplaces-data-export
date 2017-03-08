@@ -69,4 +69,15 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
 
         print_r($sells);
     }
+
+    /**
+     * @group public
+     * @group user
+     */
+    public function testGetUserInfoByUserId()
+    {
+        $sells = $this->adapter->getUserInfo(336686);
+
+        print_r($sells);
+    }
 }

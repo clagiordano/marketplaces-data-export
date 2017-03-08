@@ -110,7 +110,7 @@ class Allegro extends AbstractAdapter
      * This method provides all functions of “Selling” tabs available in My Allegro.
      * Additionally it allows for sorting and filtering offers and searching by name.
      *
-     * @return mixed
+     * @return array
      */
     public function getMySellItems()
     {
@@ -127,7 +127,7 @@ class Allegro extends AbstractAdapter
      * This method provides all functions of ”Sold” tabs available in My Allegro.
      * Additionally it allows for sorting and filtering offers and searching by name.
      *
-     * @return mixed
+     * @return array
      */
     public function getMySoldItems()
     {
@@ -137,6 +137,43 @@ class Allegro extends AbstractAdapter
                 [
                     'sessionId' => $this->doLogin()['sessionHandlePart']
                 ]
+            );
+    }
+
+    /**
+     *﻿This method allows for loading publicly available information on any user.
+     * The user can be indicated by the identifier or username - when value is passed in both parameters,
+     * data of a user indicated by the userId parameter are returned
+     *
+     * @param int $userId required (non-required if userLogin has been provided)
+     * @param null $userLogin required (non-required if userId has been provided)
+     * @return array
+     */
+    public function getUserInfo($userId = null, $userLogin = null)
+    {
+        if (is_null($userId) && is_null($userLogin)) {
+            throw new \InvalidArgumentException(
+                __METHOD__ . "Error, userId or userName are required!"
+            );
+        }
+
+        $params = [
+            'webapiKey' => $this->adapterConfig->apiKey,
+            'countryId' => $this->adapterConfig->countryCode,
+        ];
+
+        if (!is_null($userId)) {
+            $params['userId'] = $userId;
+        }
+
+        if (!is_null($userLogin)) {
+            $params['userLogin'] = $userLogin;
+        }
+
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doShowUser',
+                $params
             );
     }
 }
