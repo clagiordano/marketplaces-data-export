@@ -205,7 +205,7 @@ class Allegro extends AbstractAdapter
      * @param array $itemsArray
      * @return array
      */
-    public function getBuyerData(array $itemsArray)
+    public function getBuyerData($itemsArray)
     {
         return $this->getSoapClient($this->resourceLink, true)
             ->call(
@@ -263,16 +263,42 @@ class Allegro extends AbstractAdapter
      * @param array $transactionsIds
      * @return mixed
      */
-    public function getTransactionsData(array $transactionsIds)
+    public function getTransactionsData($transactionsIds)
     {
-        var_dump($transactionsIds);
-
         return $this->getSoapClient($this->resourceLink, true)
             ->call(
                 'doGetPostBuyFormsDataForSellers',
                 [
                     'sessionId' => $this->doLogin()['sessionHandlePart'],
                     'transactionsIdsArray' => $transactionsIds
+                ]
+            );
+    }
+
+    /**
+     * This method allows for loading values of transaction identifiers (purchases completed by
+     * filling out an after-sale form by a buyer) and related additional payments based on passed
+     * offer identifiers. Results can be filtered by delivery methods by providing their identifiers
+     * while calling. Results are sorted in the same order in which forms related to the given offer
+     * have been filled out (since the most recent to the oldest one). Received transaction identifiers
+     * can be used e.g. to load filled out after-sale forms using the doGetPostBuyFormsDataForSellers/ForBuyers
+     * method. This method returns only transaction identifiers with filled out by a buyer after-sale
+     * forms (within the given offer).
+     *
+     * @param array $itemIds
+     * @param string $userRole seller or buyer
+     * @return mixed
+     */
+    public function getTransactionsIds(array $itemIds, $userRole = 'buyer')
+    {
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetPostBuyFormsDataForSellers',
+                [
+                    'sessionId' => $this->doLogin()['sessionHandlePart'],
+                    'itemsIdArray' => $itemIds,
+                    'userRole' => $userRole,
+//                    'shipmentIdArray' => array(2, 5)
                 ]
             );
     }

@@ -135,15 +135,28 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetTransactionsData()
     {
+        $transactionIds = [];
         $response = $this->adapter->getJournalDeals();
         print_r($response);
+
+        // Filter for dealEventId
+//        $response = $this->adapter->getJournalDeals(2887265130);
+//        print_r($response);
 
         foreach ($response['siteJournalDeals']['item'] as $item) {
             $this->assertInternalType('array', $item);
             $this->assertArrayHasKey('dealTransactionId', $item);
 
-            $transaction = $this->adapter->getTransactionsData([$item['dealTransactionId']]);
-            print_r($transaction);
+//            $transaction = $this->adapter->getTransactionsData([$item['dealTransactionId']]);
+//            print_r($transaction);
+            $transactionData = $this->adapter->getTransactionsData($item['dealTransactionId']);
+            var_dump($transactionData);
+
+            $transactionIds[] = $item['dealTransactionId'];
         }
+
+//        $transaction = $this->adapter->getTransactionsIds([6674148513, 667339875]);
+        $transaction = $this->adapter->getTransactionsData($transactionIds);
+        var_dump($transaction);
     }
 }
