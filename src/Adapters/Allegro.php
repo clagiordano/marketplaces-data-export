@@ -272,7 +272,7 @@ class Allegro extends AbstractAdapter
                 'doGetPostBuyFormsDataForSellers',
                 [
                     'sessionId' => $this->doLogin()['sessionHandlePart'],
-                    'transactionsIdsArray' => [$transactionsIds]
+                    'transactionsIdsArray' => $transactionsIds
                 ]
             );
     }
