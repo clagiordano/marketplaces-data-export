@@ -217,5 +217,63 @@ class Allegro extends AbstractAdapter
             );
     }
 
+    /**
+     * This method allows for loading information from the event log on events (creating purchase event,
+     * creating transaction, cancelling transaction, completing transaction) related to after-sale forms
+     * in a context of a logged-in user being the transaction's party (data are returned only for offers
+     * created by the user in a country to which he/she is logged-in to while calling the method).
+     * 100 of most recent events are returned (starting from the point set in the journalStart parameter)
+     * sorted in ascending order by the time of their appearance. In order to control the process of loading
+     * next data portions (to get to the most recent data) the journalStart parameter has to pass the
+     * dealEventId value of the last (hundredth) element returned when calling the method and you need to
+     * repeat the process until you receive a data portion containing less than 100 elements (that means the
+     * received data are up-to-date).
+     *
+     * @param null $journalStart
+     * @return mixed
+     */
+    public function getJournalDeals($journalStart = null)
+    {
+        $params = [
+            'sessionId' => $this->doLogin()['sessionHandlePart'],
+        ];
 
+        if (!is_null($journalStart)) {
+            $params['journalStart'] = $journalStart;
+        }
+
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetSiteJournalDeals',
+                $params
+            );
+    }
+
+    /**
+     * This method allows sellers to load data from after-sale and related additional payment forms
+     * filled out by buyers. It also returns detailed payment data (made through PayU) related to the
+     * indicated transactions, information on a selected pick-up point and identification data on
+     * shipment containing products from particular transactions. If incorrect transaction identifiers
+     * or the ones which cannot be accessed by a logged-in user are provided in the input array, they
+     * are ignored when presenting output data (data are returned only for transaction identifiers
+     * considered correct and relating to the user being a session owner). Additionally - calling this
+     * method for a transaction in which a logged-in user has acted as a buyer will result in returning
+     * an empty structure. The doGetPostBuyFormsDataForBuyers method should be used for such purpose.
+     *
+     * @param array $transactionsIds
+     * @return mixed
+     */
+    public function getTransactionsData(array $transactionsIds)
+    {
+        var_dump($transactionsIds);
+
+        return $this->getSoapClient($this->resourceLink, true)
+            ->call(
+                'doGetPostBuyFormsDataForSellers',
+                [
+                    'sessionId' => $this->doLogin()['sessionHandlePart'],
+                    'transactionsIdsArray' => [$transactionsIds]
+                ]
+            );
+    }
 }

@@ -113,4 +113,37 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
             print_r($buyerData);
         }
     }
+
+    /**
+     * @group public
+     * @group deals
+     * @group journal
+     */
+    public function testGetJournalDeals()
+    {
+        $response = $this->adapter->getJournalDeals();
+        $this->assertInternalType('array', $response);
+
+        $this->assertArrayHasKey('siteJournalDeals', $response);
+        $this->assertInternalType('array', $response['siteJournalDeals']);
+    }
+
+    /**
+     * @group public
+     * @group deals
+     * @group transactions
+     */
+    public function testGetTransactionsData()
+    {
+        $response = $this->adapter->getJournalDeals();
+        print_r($response);
+
+        foreach ($response['siteJournalDeals']['item'] as $item) {
+            $this->assertInternalType('array', $item);
+            $this->assertArrayHasKey('dealTransactionId', $item);
+
+            $transaction = $this->adapter->getTransactionsData([$item['dealTransactionId']]);
+            print_r($transaction);
+        }
+    }
 }
