@@ -29,6 +29,20 @@ class Allegro extends AbstractAdapter
         $this->resourceLink = $resourceLink;
     }
 
+    public function __call($name, $arguments)
+    {
+        if (isset($arguments[0])) $arguments = (array)$arguments[0];
+        else $arguments = [];
+
+
+        $arguments['sessionId'] = $this->userSession['sessionHandlePart'];
+        $arguments['sessionHandle'] = $this->userSession['sessionHandlePart'];
+        $arguments['webapiKey'] = $this->adapterConfig->apiKey;
+//        $arguments['countryId'] = $this->countryId;
+        $arguments['countryCode'] = $this->adapterConfig->countryCode;
+        return $this->client->$name($arguments);
+    }
+
     /**
      * Returns allegro system information
      *
