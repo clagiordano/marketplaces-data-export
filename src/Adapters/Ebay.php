@@ -3,9 +3,8 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
-use \DTS\eBaySDK\Shopping\Services;
-use \DTS\eBaySDK\Shopping\Types;
-
+use \DTS\eBaySDK\OAuth\Services;
+use \DTS\eBaySDK\OAuth\Types;
 
 /**
  * Class Ebay
@@ -13,20 +12,14 @@ use \DTS\eBaySDK\Shopping\Types;
  */
 class Ebay extends AbstractAdapter
 {
-    /** @var null|Services\ShoppingService $service */
-    protected $service = null;
+    protected $service;
 
-    protected $request = null;
-
-    /**
-     * Ebay constructor.
-     * @param Config $config
-     * @param string $resourceLink resource api link
-     */
-    public function __construct(Config $config, $resourceLink)
+    public function __construct(Config $config)
     {
-        parent::__construct($config);
-
-        $this->resourceLink = $resourceLink;
+        $this->service = new Services\OAuthService([
+            'credentials' => $config['sandbox']['credentials'],
+            'ruName'      => $config['sandbox']['ruName'],
+            'sandbox'     => true
+        ]);
     }
 }

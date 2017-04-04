@@ -8,7 +8,7 @@ use clagiordano\weblibs\configmanager\ConfigManager;
  * Class Config
  * @package clagiordano\MarketplacesDataExport
  */
-class Config
+class Config extends ConfigManager
 {
     /** @var ConfigManager|null $configManager */
     protected $configManager = null;
@@ -30,7 +30,7 @@ class Config
      */
     public function __construct($configFile)
     {
-        $this->configManager = new ConfigManager($configFile);
+        parent::__construct($configFile);
 
         $this->setupProperties();
     }
@@ -40,10 +40,10 @@ class Config
      */
     private function setupProperties()
     {
-        $this->userLogin = $this->configManager->getValue('userLogin', null);
-        $this->userPassword = $this->configManager->getValue('userPassword', null);
-        $this->countryCode = $this->configManager->getValue('countryCode', null);
-        $this->apiKey = $this->configManager->getValue('apiKey', null);
-        $this->apiVersion = $this->configManager->getValue('apiVersion', null);
+        $this->userLogin = $this->getValue('userLogin', null);
+        $this->userPassword = $this->getValue('userPassword', null);
+        $this->countryCode = $this->getValue('countryCode', null);
+        $this->apiKey = $this->getValue('apiKey', null);
+        $this->apiVersion = $this->getValue('apiVersion', null);
     }
 }
