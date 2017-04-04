@@ -4,7 +4,9 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
 use \DTS\eBaySDK\OAuth\Services;
-use \DTS\eBaySDK\OAuth\Types;
+use \DTS\eBaySDK\Constants\SiteIds;
+use \DTS\eBaySDK\Trading\Types;
+use \DTS\eBaySDK\Trading\Enums;
 
 /**
  * Class Ebay
@@ -13,21 +15,35 @@ use \DTS\eBaySDK\OAuth\Types;
 class Ebay extends AbstractAdapter
 {
     protected $service = null;
+    /** @var array $serviceConfig */
+    protected $serviceConfig = [];
+    /** @var bool $isSandboxMode */
+    protected $isSandboxMode = true;
+    /** @var string $appToken */
     protected $appToken = null;
-    protected $appTokenExpireAt = null;
+    /** @var int $appTokenExpireAt */
+    protected $appTokenExpireAt = 0;
 
     public function __construct(Config $config, $sandboxMode = true)
     {
+        $this->adapterConfig = $config;
+        $this->isSandboxMode = $sandboxMode;
+
         $section = 'sandbox';
-        if (!$sandboxMode) {
+        if (!$this->isSandboxMode) {
             $section = 'production';
         }
 
-        $this->service = new Services\OAuthService([
-            'credentials' => $config->getValue("{$section}.credentials"),
-            'ruName'      => $config->getValue("{$section}.ruName"),
-            'sandbox'     => $sandboxMode
-        ]);
+        $this->serviceConfig = [
+            'credentials' => $this->adapterConfig->getValue("{$section}.credentials"),
+            'ruName'      => $this->adapterConfig->getValue("{$section}.ruName"),
+            'siteId'      => SiteIds::IT,   // TODO migrate to config file
+            'sandbox'     => $this->isSandboxMode,
+        ];
+        $this->appToken = $this->adapterConfig->getValue("{$section}.authToken");
+        $this->appTokenExpireAt = strtotime("+ 7200 seconds");
+
+        $this->service = new Services\OAuthService($this->serviceConfig);
     }
 
     /**
@@ -57,5 +73,67 @@ class Ebay extends AbstractAdapter
         $this->appTokenExpireAt = strtotime("+ {$response->expires_in} seconds");
 
         return $this->appToken;
+    }
+
+    public function testSoldList()
+    {
+        $service = new \DTS\eBaySDK\Trading\Services\TradingService($this->serviceConfig);
+        $request = new Types\GetMyeBaySellingRequestType();
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        /**
+         * Request that eBay returns the list of actively selling items.
+         * We want 10 items per page and they should be sorted in descending order by the current price.
+         */
+        $request->SoldList = new Types\ItemListCustomizationType();
+        $request->SoldList->Include = true;
+        $request->SoldList->Pagination = new Types\PaginationType();
+        $request->SoldList->Pagination->EntriesPerPage = 10;
+        $request->SoldList->Sort = Enums\ItemSortTypeCodeType::C_CURRENT_PRICE_DESCENDING;
+
+        $pageNum = 1;
+        do {
+            $request->SoldList->Pagination->PageNumber = $pageNum;
+            /**
+             * Send the request.
+             */
+            $response = $service->getMyeBaySelling($request);
+            /**
+             * Output the result of calling the service operation.
+             */
+            echo "==================\nResults for page $pageNum\n==================\n";
+            if (isset($response->Errors)) {
+                foreach ($response->Errors as $error) {
+                    printf(
+                        "%s: %s\n%s\n\n",
+                        $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+                        $error->ShortMessage,
+                        $error->LongMessage
+                    );
+                }
+            }
+
+//            print_r($response->SoldList->OrderTransactionArray->OrderTransaction);
+
+            if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
+                foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
+//                    print_r($transaction);
+
+                    printf(
+                        "[%s]: (%s) %s: %s %s %s \n",
+                        $transaction->Transaction->Item->SKU,
+                        $transaction->Transaction->Item->ItemID,
+                        $transaction->Transaction->Item->Title,
+                        $transaction->Transaction->Item->Currency,
+                        $transaction->Transaction->Item->BuyItNowPrice->currencyID,
+                        $transaction->Transaction->Item->BuyItNowPrice->value
+                    );
+
+                }
+            }
+            $pageNum += 1;
+        } while (isset($response->SoldList) && $pageNum <= $response->SoldList->PaginationResult->TotalNumberOfPages);
     }
 }

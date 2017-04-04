@@ -9,6 +9,6 @@ use clagiordano\MarketplacesDataExport\Config;
 
 $config = new Config(__DIR__ . '/../testdata/ebay.php');
 
-$ebay = new Ebay($config);
-print_r($ebay->getAppToken());
-
+$ebay = new Ebay($config, false);
+//print_r($ebay->getAppToken());
+print_r($ebay->testSoldList());
