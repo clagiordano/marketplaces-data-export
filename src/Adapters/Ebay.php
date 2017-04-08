@@ -83,6 +83,9 @@ class Ebay extends AbstractAdapter
         return $this->appToken;
     }
 
+    /**
+     * @return array|bool
+     */
     public function getSoldList()
     {
         $transactionsList = [];
@@ -122,7 +125,7 @@ class Ebay extends AbstractAdapter
 
         if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
             foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
-//                print_r($transaction->Transaction->Item);
+//                print_r($transaction);
 //                die("AAA");
 //                printf(
 //                    "[%s]: (%s) %s: %s %s %s \n",
@@ -136,9 +139,19 @@ class Ebay extends AbstractAdapter
 
                 $trData = new Transaction();
 
-                $transactionsList = "";
+                $trData->customerData->customerMail = $transaction->Transaction->Buyer->Email;
+                $trData->customerData->userId = $transaction->Transaction->Buyer->UserID;
+                $trData->customerData->customerName = $transaction->Transaction->Buyer->UserFirstName;
+                $trData->customerData->customerSurame = $transaction->Transaction->Buyer->UserLastName;
+                $trData->shippingAddress = $transaction->Transaction->Buyer->ShippingAddress;
+
+                $transactionsList[] = $trData;
+
+                return $transactionsList;
             }
         }
+
+        return $transactionsList;
 
 //        $pageNum = 1;
 //        do {

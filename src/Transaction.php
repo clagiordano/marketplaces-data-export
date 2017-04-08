@@ -24,8 +24,14 @@ class Transaction
     public $purchasePrice = null;
     /** @var bool $isSettled settled or not */
     public $isSettled = false;
+    /** @var string|null $sellerPaidStatus */
+    public $sellerPaidStatus = null;
     /** @var string|null $shippingAddress */
     public $shippingAddress = null;
+    /** @var float|null $totalPrice */
+    public $totalPrice = null;
+    /** @var string|null  */
+    public $paidTime = null;
 
     /**
      * Transaction constructor.

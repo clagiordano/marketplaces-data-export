@@ -16,4 +16,10 @@ class Customer
     public $billingAddress = null;
     /** @var string|null $customerMail */
     public $customerMail = null;
+    /** @var string|null $userId */
+    public $userId = null;
+    /** @var string|null $country */
+    public $country = null;
+    /** @var int|null $postalCode */
+    public $postalCode = null;
 }
