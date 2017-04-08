@@ -11,4 +11,4 @@ $config = new Config(__DIR__ . '/../testdata/ebay.php');
 
 $ebay = new Ebay($config, false);
 //print_r($ebay->getAppToken());
-print_r($ebay->testSoldList());
+print_r($ebay->getSoldList());

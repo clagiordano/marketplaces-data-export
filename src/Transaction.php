@@ -26,4 +26,13 @@ class Transaction
     public $isSettled = false;
     /** @var string|null $shippingAddress */
     public $shippingAddress = null;
+
+    /**
+     * Transaction constructor.
+     */
+    public function __construct()
+    {
+        $this->customerData = new Customer();
+        $this->productData = new Product();
+    }
 }

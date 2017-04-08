@@ -3,8 +3,10 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Transaction;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
+use DTS\eBaySDK\Trading\Services\TradingService;
 use \DTS\eBaySDK\Trading\Types;
 use \DTS\eBaySDK\Trading\Enums;
 
@@ -24,9 +26,15 @@ class Ebay extends AbstractAdapter
     /** @var int $appTokenExpireAt */
     protected $appTokenExpireAt = 0;
 
+    /**
+     * Ebay constructor.
+     * @param Config $config
+     * @param bool $sandboxMode
+     */
     public function __construct(Config $config, $sandboxMode = true)
     {
-        $this->adapterConfig = $config;
+        parent::__construct($config);
+
         $this->isSandboxMode = $sandboxMode;
 
         $section = 'sandbox';
@@ -75,9 +83,11 @@ class Ebay extends AbstractAdapter
         return $this->appToken;
     }
 
-    public function testSoldList()
+    public function getSoldList()
     {
-        $service = new \DTS\eBaySDK\Trading\Services\TradingService($this->serviceConfig);
+        $transactionsList = [];
+
+        $service = new TradingService($this->serviceConfig);
         $request = new Types\GetMyeBaySellingRequestType();
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
@@ -89,51 +99,88 @@ class Ebay extends AbstractAdapter
          */
         $request->SoldList = new Types\ItemListCustomizationType();
         $request->SoldList->Include = true;
-        $request->SoldList->Pagination = new Types\PaginationType();
-        $request->SoldList->Pagination->EntriesPerPage = 10;
+//        $request->SoldList->Pagination = new Types\PaginationType();
+//        $request->SoldList->Pagination->EntriesPerPage = 10;
+        $request->SoldList->Sort = Enums\ItemSortTypeCodeType::C_END_TIME;
         $request->SoldList->Sort = Enums\ItemSortTypeCodeType::C_CURRENT_PRICE_DESCENDING;
 
-        $pageNum = 1;
-        do {
-            $request->SoldList->Pagination->PageNumber = $pageNum;
-            /**
-             * Send the request.
-             */
-            $response = $service->getMyeBaySelling($request);
-            /**
-             * Output the result of calling the service operation.
-             */
-            echo "==================\nResults for page $pageNum\n==================\n";
-            if (isset($response->Errors)) {
-                foreach ($response->Errors as $error) {
-                    printf(
-                        "%s: %s\n%s\n\n",
-                        $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
-                        $error->ShortMessage,
-                        $error->LongMessage
-                    );
-                }
+        $response = $service->getMyeBaySelling($request);
+//        print_r($response);
+
+        if (isset($response->Errors)) {
+            foreach ($response->Errors as $error) {
+                printf(
+                    "%s: %s\n%s\n\n",
+                    $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+                    $error->ShortMessage,
+                    $error->LongMessage
+                );
             }
 
-//            print_r($response->SoldList->OrderTransactionArray->OrderTransaction);
+            return false;
+        }
 
-            if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
-                foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
-//                    print_r($transaction);
+        if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
+            foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
+//                print_r($transaction->Transaction->Item);
+//                die("AAA");
+//                printf(
+//                    "[%s]: (%s) %s: %s %s %s \n",
+//                    $transaction->Transaction->Item->SKU,
+//                    $transaction->Transaction->Item->ItemID,
+//                    $transaction->Transaction->Item->Title,
+//                    $transaction->Transaction->Item->Currency,
+//                    $transaction->Transaction->Item->BuyItNowPrice->currencyID,
+//                    $transaction->Transaction->Item->BuyItNowPrice->value
+//                );
 
-                    printf(
-                        "[%s]: (%s) %s: %s %s %s \n",
-                        $transaction->Transaction->Item->SKU,
-                        $transaction->Transaction->Item->ItemID,
-                        $transaction->Transaction->Item->Title,
-                        $transaction->Transaction->Item->Currency,
-                        $transaction->Transaction->Item->BuyItNowPrice->currencyID,
-                        $transaction->Transaction->Item->BuyItNowPrice->value
-                    );
+                $trData = new Transaction();
 
-                }
+                $transactionsList = "";
             }
-            $pageNum += 1;
-        } while (isset($response->SoldList) && $pageNum <= $response->SoldList->PaginationResult->TotalNumberOfPages);
+        }
+
+//        $pageNum = 1;
+//        do {
+//            $request->SoldList->Pagination->PageNumber = $pageNum;
+//            /**
+//             * Send the request.
+//             */
+//            $response = $service->getMyeBaySelling($request);
+//            /**
+//             * Output the result of calling the service operation.
+//             */
+//            echo "==================\nResults for page $pageNum\n==================\n";
+//            if (isset($response->Errors)) {
+//                foreach ($response->Errors as $error) {
+//                    printf(
+//                        "%s: %s\n%s\n\n",
+//                        $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+//                        $error->ShortMessage,
+//                        $error->LongMessage
+//                    );
+//                }
+//            }
+//
+////            print_r($response->SoldList->OrderTransactionArray->OrderTransaction);
+//
+//            if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
+//                foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
+//                    print_r($transaction->Transaction->Item);
+//                    die("AAA");
+//                    printf(
+//                        "[%s]: (%s) %s: %s %s %s \n",
+//                        $transaction->Transaction->Item->SKU,
+//                        $transaction->Transaction->Item->ItemID,
+//                        $transaction->Transaction->Item->Title,
+//                        $transaction->Transaction->Item->Currency,
+//                        $transaction->Transaction->Item->BuyItNowPrice->currencyID,
+//                        $transaction->Transaction->Item->BuyItNowPrice->value
+//                    );
+//
+//                }
+//            }
+//            $pageNum += 1;
+//        } while (isset($response->SoldList) && $pageNum <= $response->SoldList->PaginationResult->TotalNumberOfPages);
     }
 }
