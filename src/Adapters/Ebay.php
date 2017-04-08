@@ -147,7 +147,7 @@ class Ebay extends AbstractAdapter
 
                 $transactionsList[] = $trData;
 
-                return $transactionsList;
+//                return $transactionsList;
             }
         }
 
