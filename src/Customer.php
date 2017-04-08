@@ -3,10 +3,10 @@
 namespace clagiordano\MarketplacesDataExport;
 
 /**
- * Class CustomerData
+ * Class Customer
  * @package clagiordano\MarketplacesDataExport
  */
-class CustomerData
+class Customer
 {
     /** @var string|null $customerName */
     public $customerName = null;

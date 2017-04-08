@@ -2,23 +2,22 @@
 
 namespace clagiordano\MarketplacesDataExport;
 
-use clagiordano\MarketplacesDataExport\CustomerData;
+use clagiordano\MarketplacesDataExport\Customer;
+use clagiordano\MarketplacesDataExport\Product;
 
 /**
  * Class Transaction
  * @package clagiordano\MarketplacesDataExport
  */
-class TransactionData
+class Transaction
 {
-//- mail
-    /** @var CustomerData|null $customerData */
+    /** @var Customer|null $customerData */
     public $customerData = null;
-    /** @var null|int $marketProductId */
-    public $marketProductId = null;
+    /** @var Product|null $productData */
+    public $productData = null;
+
     /** @var int|null $marketTransactionId */
     public $marketTransactionId = null;
-    /** @var string|null $vendorProductId */
-    public $vendorProductId = null;
     /** @var int|null $quantityPurchased */
     public $quantityPurchased = null;
     /** @var float|null $purchasePrice */
@@ -27,5 +26,4 @@ class TransactionData
     public $isSettled = false;
     /** @var string|null $shippingAddress */
     public $shippingAddress = null;
-
 }
