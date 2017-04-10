@@ -84,6 +84,8 @@ class Ebay extends AbstractAdapter
     }
 
     /**
+     * Returns simple solds list
+     *
      * @return array|bool
      */
     public function getSoldList()
@@ -152,6 +154,75 @@ class Ebay extends AbstractAdapter
                 $trData->productData->description = $transaction->Transaction->Item->Title;
 
                 $transactionsList[] = $trData;
+            }
+        }
+
+        return $transactionsList;
+    }
+
+    /**
+     * Returns simple solds list
+     *
+     * @return array|bool
+     */
+    public function getSoldListings()
+    {
+        $transactionsList = [];
+
+        $service = new TradingService($this->serviceConfig);
+        $request = new Types\GetSellingManagerSoldListingsRequestType();
+        $saleRecord = new Types\GetSellingManagerSaleRecordRequestType();
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $response = $service->getSellingManagerSoldListings($request);
+
+        if (isset($response->Errors)) {
+            foreach ($response->Errors as $error) {
+                printf(
+                    "%s: %s\n%s\n\n",
+                    $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+                    $error->ShortMessage,
+                    $error->LongMessage
+                );
+            }
+
+            return false;
+        }
+
+
+        if ($response->Ack !== 'Failure' && isset($response->SaleRecord)) {
+            var_dump('sales count' . count($response->SaleRecord));
+            foreach ($response->SaleRecord as $transaction) {
+                $trData = new Transaction();
+
+                /** TODO Check if array has only 1 element */
+                $trData->marketTransactionId = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
+                $trData->saleCounter = $transaction->SellingManagerSoldTransaction[0]->SaleRecordID;
+                $trData->quantityPurchased = $transaction->SellingManagerSoldTransaction[0]->QuantitySold;
+
+                $trData->productData->marketProductId = $transaction->SellingManagerSoldTransaction[0]->ItemID;
+                $trData->productData->description = $transaction->SellingManagerSoldTransaction[0]->ItemTitle;
+                $trData->productData->vendorProductId = $transaction->SellingManagerSoldTransaction[0]->CustomLabel;
+
+                $trData->shippingData->shippingContact = $transaction->ShippingAddress->Name;
+                $trData->shippingData->postalCode = $transaction->ShippingAddress->PostalCode;
+//                $trData->shippingData->shippingAddress = $transaction->ShippingAddress;   // TODO
+
+                $trData->totalPrice = $transaction->TotalAmount->value;
+                $trData->currency = $transaction->TotalAmount->currencyID;
+
+
+                $saleRecord->TransactionID = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
+                $saleRecordData = $service->getSellingManagerSaleRecord($saleRecord);
+
+                var_dump($saleRecordData);
+                die("CCC");
+
+                $transactionsList[] = $trData;
+
+                return $transactionsList;
             }
         }
 
