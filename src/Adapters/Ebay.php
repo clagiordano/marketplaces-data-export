@@ -154,9 +154,14 @@ class Ebay extends AbstractAdapter
 
                 $trData->customerData->customerMail = $transaction->Transaction->Buyer->Email;
                 $trData->customerData->userId = $transaction->Transaction->Buyer->UserID;
+
 //                $trData->shippingAddress =
 //                    var_dump($transaction->Transaction->Buyer->BuyerInfo);
 //                    var_dump($transaction->Transaction->ShippingDetails);
+
+                $trData->productData->marketProductId = $transaction->Transaction->Item->ItemID;
+                $trData->productData->vendorProductId = $transaction->Transaction->Item->SKU;
+                $trData->productData->description = $transaction->Transaction->Item->Title;
 
                 $transactionsList[] = $trData;
 
