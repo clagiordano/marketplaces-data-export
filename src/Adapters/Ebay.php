@@ -102,13 +102,9 @@ class Ebay extends AbstractAdapter
          */
         $request->SoldList = new Types\ItemListCustomizationType();
         $request->SoldList->Include = true;
-//        $request->SoldList->Pagination = new Types\PaginationType();
-//        $request->SoldList->Pagination->EntriesPerPage = 10;
         $request->SoldList->Sort = Enums\ItemSortTypeCodeType::C_END_TIME;
-        $request->SoldList->Sort = Enums\ItemSortTypeCodeType::C_CURRENT_PRICE_DESCENDING;
 
         $response = $service->getMyeBaySelling($request);
-//        print_r($response);
 
         if (isset($response->Errors)) {
             foreach ($response->Errors as $error) {
@@ -125,23 +121,15 @@ class Ebay extends AbstractAdapter
 
         if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
             foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
-//                print_r($transaction);
-//                die("AAA");
-//                printf(
-//                    "[%s]: (%s) %s: %s %s %s \n",
-//                    $transaction->Transaction->Item->SKU,
-//                    $transaction->Transaction->Item->ItemID,
-//                    $transaction->Transaction->Item->Title,
-//                    $transaction->Transaction->Item->Currency,
-//                    $transaction->Transaction->Item->BuyItNowPrice->currencyID,
-//                    $transaction->Transaction->Item->BuyItNowPrice->value
-//                );
-
                 $trData = new Transaction();
 
                 $trData->totalPrice = $transaction->Transaction->TotalPrice->value;
                 $trData->currency = $transaction->Transaction->TotalPrice->currencyID;
-                $trData->paidTime = $transaction->Transaction->PaidTime->format('Y-m-d H:i:s');
+
+                if ($transaction->Transaction->PaidTime instanceof \DateTime) {
+                    $trData->paidTime = $transaction->Transaction->PaidTime->format('Y-m-d H:i:s');
+                }
+
                 $trData->sellerPaidStatus = $transaction->Transaction->SellerPaidStatus;
                 $trData->marketTransactionId = $transaction->Transaction->TransactionID;
                 $trData->quantityPurchased = $transaction->Transaction->QuantityPurchased;
@@ -164,54 +152,9 @@ class Ebay extends AbstractAdapter
                 $trData->productData->description = $transaction->Transaction->Item->Title;
 
                 $transactionsList[] = $trData;
-
-//                return $transactionsList;
             }
         }
 
         return $transactionsList;
-
-//        $pageNum = 1;
-//        do {
-//            $request->SoldList->Pagination->PageNumber = $pageNum;
-//            /**
-//             * Send the request.
-//             */
-//            $response = $service->getMyeBaySelling($request);
-//            /**
-//             * Output the result of calling the service operation.
-//             */
-//            echo "==================\nResults for page $pageNum\n==================\n";
-//            if (isset($response->Errors)) {
-//                foreach ($response->Errors as $error) {
-//                    printf(
-//                        "%s: %s\n%s\n\n",
-//                        $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
-//                        $error->ShortMessage,
-//                        $error->LongMessage
-//                    );
-//                }
-//            }
-//
-////            print_r($response->SoldList->OrderTransactionArray->OrderTransaction);
-//
-//            if ($response->Ack !== 'Failure' && isset($response->SoldList)) {
-//                foreach ($response->SoldList->OrderTransactionArray->OrderTransaction as $transaction) {
-//                    print_r($transaction->Transaction->Item);
-//                    die("AAA");
-//                    printf(
-//                        "[%s]: (%s) %s: %s %s %s \n",
-//                        $transaction->Transaction->Item->SKU,
-//                        $transaction->Transaction->Item->ItemID,
-//                        $transaction->Transaction->Item->Title,
-//                        $transaction->Transaction->Item->Currency,
-//                        $transaction->Transaction->Item->BuyItNowPrice->currencyID,
-//                        $transaction->Transaction->Item->BuyItNowPrice->value
-//                    );
-//
-//                }
-//            }
-//            $pageNum += 1;
-//        } while (isset($response->SoldList) && $pageNum <= $response->SoldList->PaginationResult->TotalNumberOfPages);
     }
 }
