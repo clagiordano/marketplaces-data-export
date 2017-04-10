@@ -8,10 +8,18 @@ namespace clagiordano\MarketplacesDataExport;
  */
 class Shipping
 {
-    /** @var string|null $shippingAddress */
-    public $shippingAddress = null;
-    /** @var string|null $shippingContact */
-    public $shippingContact = null;
+    /** @var string|null $contact */
+    public $contact = null;
+    /** @var string|null $address */
+    public $address = null;
+    /** @var string|null $cityName */
+    public $cityName = null;
+    /** @var string|null $state */
+    public $state = null;
+    /** @var string|null $countryCode */
+    public $countryCode = null;
+    /** @var string|null $phone */
+    public $phone = null;
     /** @var int|null $postalCode */
     public $postalCode = null;
 }
