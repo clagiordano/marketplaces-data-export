@@ -139,11 +139,24 @@ class Ebay extends AbstractAdapter
 
                 $trData = new Transaction();
 
-                $trData->customerData->customerMail = $transaction->Transaction->Buyer->Email;
-                $trData->customerData->userId = $transaction->Transaction->Buyer->UserID;
+                $trData->totalPrice = $transaction->Transaction->TotalPrice->value;
+                $trData->currency = $transaction->Transaction->TotalPrice->currencyID;
+                $trData->paidTime = $transaction->Transaction->PaidTime->format('Y-m-d H:i:s');
+                $trData->sellerPaidStatus = $transaction->Transaction->SellerPaidStatus;
+                $trData->marketTransactionId = $transaction->Transaction->TransactionID;
+                $trData->quantityPurchased = $transaction->Transaction->QuantityPurchased;
+                $trData->purchasePrice = $transaction->Transaction->Item->BuyItNowPrice->value;
+
                 $trData->customerData->customerName = $transaction->Transaction->Buyer->UserFirstName;
                 $trData->customerData->customerSurame = $transaction->Transaction->Buyer->UserLastName;
-                $trData->shippingAddress = $transaction->Transaction->Buyer->ShippingAddress;
+                $trData->customerData->country = $transaction->Transaction->Buyer->BuyerInfo->ShippingAddress->Country;
+                $trData->customerData->postalCode = $transaction->Transaction->Buyer->BuyerInfo->ShippingAddress->PostalCode;
+
+                $trData->customerData->customerMail = $transaction->Transaction->Buyer->Email;
+                $trData->customerData->userId = $transaction->Transaction->Buyer->UserID;
+//                $trData->shippingAddress =
+//                    var_dump($transaction->Transaction->Buyer->BuyerInfo);
+//                    var_dump($transaction->Transaction->ShippingDetails);
 
                 $transactionsList[] = $trData;
 
