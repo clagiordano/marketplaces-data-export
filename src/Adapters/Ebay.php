@@ -145,10 +145,6 @@ class Ebay extends AbstractAdapter
                 $trData->customerData->customerMail = $transaction->Transaction->Buyer->Email;
                 $trData->customerData->userId = $transaction->Transaction->Buyer->UserID;
 
-//                $trData->shippingAddress =
-//                    var_dump($transaction->Transaction->Buyer->BuyerInfo);
-//                    var_dump($transaction->Transaction->ShippingDetails);
-
                 $trData->productData->marketProductId = $transaction->Transaction->Item->ItemID;
                 $trData->productData->vendorProductId = $transaction->Transaction->Item->SKU;
                 $trData->productData->description = $transaction->Transaction->Item->Title;
@@ -175,6 +171,9 @@ class Ebay extends AbstractAdapter
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $saleRecord->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $saleRecord->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
         $response = $service->getSellingManagerSoldListings($request);
 
@@ -206,19 +205,27 @@ class Ebay extends AbstractAdapter
                 $trData->productData->description = $transaction->SellingManagerSoldTransaction[0]->ItemTitle;
                 $trData->productData->vendorProductId = $transaction->SellingManagerSoldTransaction[0]->CustomLabel;
 
-                $trData->shippingData->shippingContact = $transaction->ShippingAddress->Name;
-                $trData->shippingData->postalCode = $transaction->ShippingAddress->PostalCode;
-//                $trData->shippingData->shippingAddress = $transaction->ShippingAddress;   // TODO
-
                 $trData->totalPrice = $transaction->TotalAmount->value;
                 $trData->currency = $transaction->TotalAmount->currencyID;
 
-
-                $saleRecord->TransactionID = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
+                /**
+                 * Get shipping information
+                 */
+                $saleRecord->ItemID = $transaction->SellingManagerSoldTransaction[0]->ItemID;
+                $saleRecord->TransactionID = (string)$transaction->SellingManagerSoldTransaction[0]->TransactionID;
                 $saleRecordData = $service->getSellingManagerSaleRecord($saleRecord);
 
-                var_dump($saleRecordData);
-                die("CCC");
+                /**
+                 * Parse shipping information
+                 */
+                $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+                $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
+                $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
+                $trData->shippingData->state = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+                $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
+                $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
+                $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+                $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
 
                 $transactionsList[] = $trData;
 
