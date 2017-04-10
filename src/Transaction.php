@@ -32,6 +32,8 @@ class Transaction
     public $totalPrice = null;
     /** @var string|null  */
     public $paidTime = null;
+    /** @var string|null $currency */
+    public $currency = null;
 
     /**
      * Transaction constructor.
