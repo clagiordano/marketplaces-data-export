@@ -2,9 +2,6 @@
 
 namespace clagiordano\MarketplacesDataExport;
 
-use clagiordano\MarketplacesDataExport\Customer;
-use clagiordano\MarketplacesDataExport\Product;
-
 /**
  * Class Transaction
  * @package clagiordano\MarketplacesDataExport
@@ -26,14 +23,18 @@ class Transaction
     public $isSettled = false;
     /** @var string|null $sellerPaidStatus */
     public $sellerPaidStatus = null;
-    /** @var string|null $shippingAddress */
-    public $shippingAddress = null;
     /** @var float|null $totalPrice */
     public $totalPrice = null;
     /** @var string|null  */
     public $paidTime = null;
     /** @var string|null $currency */
     public $currency = null;
+    /** @var int|null $saleCounter */
+    public $saleCounter = null;
+//    /** @var array $productList */
+//    public $productList = [];
+
+    public $shippingData = null;
 
     /**
      * Transaction constructor.
@@ -42,5 +43,6 @@ class Transaction
     {
         $this->customerData = new Customer();
         $this->productData = new Product();
+        $this->shippingData = new Shipping();
     }
 }
