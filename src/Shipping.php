@@ -14,8 +14,8 @@ class Shipping
     public $address = null;
     /** @var string|null $cityName */
     public $cityName = null;
-    /** @var string|null $state */
-    public $state = null;
+    /** @var string|null $stateOrProvince */
+    public $stateOrProvince = null;
     /** @var string|null $countryCode */
     public $countryCode = null;
     /** @var string|null $phone */

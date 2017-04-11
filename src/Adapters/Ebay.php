@@ -224,6 +224,8 @@ class Ebay extends AbstractAdapter
             }
         }
 
+        ksort($transactionsList);
+
         return $transactionsList;
     }
 
@@ -271,7 +273,7 @@ class Ebay extends AbstractAdapter
         $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
         $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
         $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
-        $trData->shippingData->state = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+        $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
         $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
         $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
         $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
