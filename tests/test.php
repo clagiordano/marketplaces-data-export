@@ -12,4 +12,10 @@ $config = new Config(__DIR__ . '/../testdata/ebay.php');
 $ebay = new Ebay($config, false);
 //print_r($ebay->getAppToken());
 //print_r($ebay->getSoldList());
-print_r($ebay->getSoldListings());
+$data = $ebay->getSoldListings();
+
+$outFile = __DIR__ . '/../testdata/out/out_sample.csv';
+
+foreach ($data as $transaction) {
+
+}
