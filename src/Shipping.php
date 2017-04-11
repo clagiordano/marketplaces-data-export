@@ -24,4 +24,8 @@ class Shipping
     public $postalCode = null;
     /** @var string|null $phone2 */
     public $phone2 = null;
+    /** @var string|null $status */
+    public $status = null;
+    /** @var string|null $cost */
+    public $cost = null;
 }

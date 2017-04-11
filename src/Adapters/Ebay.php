@@ -25,6 +25,8 @@ class Ebay extends AbstractAdapter
     protected $appToken = null;
     /** @var int $appTokenExpireAt */
     protected $appTokenExpireAt = 0;
+    /** @var null|TradingService $tradingService */
+    protected $tradingService = null;
 
     /**
      * Ebay constructor.
@@ -132,7 +134,7 @@ class Ebay extends AbstractAdapter
                     $trData->paidTime = $transaction->Transaction->PaidTime->format('Y-m-d H:i:s');
                 }
 
-                $trData->sellerPaidStatus = $transaction->Transaction->SellerPaidStatus;
+                $trData->paymentStatus = $transaction->Transaction->SellerPaidStatus;
                 $trData->marketTransactionId = $transaction->Transaction->TransactionID;
                 $trData->quantityPurchased = $transaction->Transaction->QuantityPurchased;
                 $trData->purchasePrice = $transaction->Transaction->Item->BuyItNowPrice->value;
@@ -165,17 +167,15 @@ class Ebay extends AbstractAdapter
     {
         $transactionsList = [];
 
-        $service = new TradingService($this->serviceConfig);
+        $this->tradingService = new TradingService($this->serviceConfig);
         $request = new Types\GetSellingManagerSoldListingsRequestType();
-        $saleRecord = new Types\GetSellingManagerSaleRecordRequestType();
+
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        $saleRecord->RequesterCredentials = new Types\CustomSecurityHeaderType();
-        $saleRecord->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        $response = $service->getSellingManagerSoldListings($request);
+        $response = $this->tradingService->getSellingManagerSoldListings($request);
 
         if (isset($response->Errors)) {
             foreach ($response->Errors as $error) {
@@ -190,49 +190,88 @@ class Ebay extends AbstractAdapter
             return false;
         }
 
-
         if ($response->Ack !== 'Failure' && isset($response->SaleRecord)) {
-            var_dump('sales count' . count($response->SaleRecord));
             foreach ($response->SaleRecord as $transaction) {
-                $trData = new Transaction();
+//                print_r($transaction);
 
-                /** TODO Check if array has only 1 element */
-                $trData->marketTransactionId = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
-                $trData->saleCounter = $transaction->SellingManagerSoldTransaction[0]->SaleRecordID;
-                $trData->quantityPurchased = $transaction->SellingManagerSoldTransaction[0]->QuantitySold;
+                $transactionsList[$transaction->SellingManagerSoldTransaction[0]->TransactionID][] = $this->buildTransaction($transaction);
 
-                $trData->productData->marketProductId = $transaction->SellingManagerSoldTransaction[0]->ItemID;
-                $trData->productData->description = $transaction->SellingManagerSoldTransaction[0]->ItemTitle;
-                $trData->productData->vendorProductId = $transaction->SellingManagerSoldTransaction[0]->CustomLabel;
-
-                $trData->totalPrice = $transaction->TotalAmount->value;
-                $trData->currency = $transaction->TotalAmount->currencyID;
-
-                /**
-                 * Get shipping information
-                 */
-                $saleRecord->ItemID = $transaction->SellingManagerSoldTransaction[0]->ItemID;
-                $saleRecord->TransactionID = (string)$transaction->SellingManagerSoldTransaction[0]->TransactionID;
-                $saleRecordData = $service->getSellingManagerSaleRecord($saleRecord);
-
-                /**
-                 * Parse shipping information
-                 */
-                $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
-                $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
-                $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
-                $trData->shippingData->state = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
-                $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
-                $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
-                $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
-                $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
-
-                $transactionsList[] = $trData;
-
-                return $transactionsList;
+//                return $transactionsList;
             }
         }
 
         return $transactionsList;
+    }
+
+    /**
+     * Parse a SellingManagerSoldOrderType and return a Transaction object
+     *
+     * @param \DTS\eBaySDK\Trading\Types\SellingManagerSoldOrderType $transaction
+     * @return Transaction
+     */
+    protected function buildTransaction($transaction)
+    {
+        $saleRecord = new Types\GetSellingManagerSaleRecordRequestType();
+        $saleRecord->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $saleRecord->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $trData = new Transaction();
+
+        /** TODO Check if array has only 1 element */
+
+        /**
+         * Parse transaction data
+         */
+        $trData->marketTransactionId = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
+        $trData->saleCounter = $transaction->SellingManagerSoldTransaction[0]->SaleRecordID;
+        $trData->quantityPurchased = $transaction->SellingManagerSoldTransaction[0]->QuantitySold;
+        $trData->paymentStatus = $transaction->OrderStatus->PaidStatus;
+        $trData->paymentMethod = $transaction->OrderStatus->PaymentMethodUsed;
+
+        if ($transaction->OrderStatus->PaidTime instanceof \DateTime) {
+            $trData->paidTime = $transaction->OrderStatus->PaidTime->format('Y-m-d H:i:s');
+        }
+
+        $trData->purchasePrice = $transaction->OrderStatus->PaidStatus;
+
+        /**
+         * Parse customer data
+         */
+        $trData->customerData->userId = $transaction->BuyerID;
+        $trData->customerData->customerMail = $transaction->BuyerEmail;
+
+        /**
+         * Parse product data
+         */
+        $trData->productData->marketProductId = $transaction->SellingManagerSoldTransaction[0]->ItemID;
+        $trData->productData->description = $transaction->SellingManagerSoldTransaction[0]->ItemTitle;
+        $trData->productData->vendorProductId = $transaction->SellingManagerSoldTransaction[0]->CustomLabel;
+
+        $trData->totalPrice = $transaction->TotalAmount->value;
+        $trData->currency = $transaction->TotalAmount->currencyID;
+        $trData->purchasePrice = $transaction->SalePrice->value;
+
+        /**
+         * Get shipping information
+         */
+        $saleRecord->ItemID = $transaction->SellingManagerSoldTransaction[0]->ItemID;
+        $saleRecord->TransactionID = (string)$transaction->SellingManagerSoldTransaction[0]->TransactionID;
+        $saleRecordData = $this->tradingService->getSellingManagerSaleRecord($saleRecord);
+
+        /**
+         * Parse shipping information
+         */
+        $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+        $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
+        $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
+        $trData->shippingData->state = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+        $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
+        $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
+        $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
+        $trData->shippingData->status = $transaction->OrderStatus->ShippedStatus;
+        $trData->shippingData->cost = $transaction->OrderStatus->ShippedStatus;
+
+        return $trData;
     }
 }

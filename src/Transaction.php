@@ -19,14 +19,16 @@ class Transaction
     public $quantityPurchased = null;
     /** @var float|null $purchasePrice */
     public $purchasePrice = null;
-    /** @var bool $isSettled settled or not */
-    public $isSettled = false;
-    /** @var string|null $sellerPaidStatus */
-    public $sellerPaidStatus = null;
+//    /** @var bool $isSettled settled or not */
+//    public $isSettled = false;
     /** @var float|null $totalPrice */
     public $totalPrice = null;
     /** @var string|null  */
     public $paidTime = null;
+    /** @var string|null $paymentStatus */
+    public $paymentStatus = null;
+    /** @var string|null $paymentMethod */
+    public $paymentMethod = null;
     /** @var string|null $currency */
     public $currency = null;
     /** @var int|null $saleCounter */
