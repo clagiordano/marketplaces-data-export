@@ -191,12 +191,36 @@ class Ebay extends AbstractAdapter
         }
 
         if ($response->Ack !== 'Failure' && isset($response->SaleRecord)) {
-            foreach ($response->SaleRecord as $transaction) {
-//                print_r($transaction);
+            foreach ($response->SaleRecord as $record) {
+                foreach ($record->SellingManagerSoldTransaction as $transaction) {
+                    $trData = $this->buildTransaction($transaction);
 
-                $transactionsList[$transaction->SellingManagerSoldTransaction[0]->TransactionID][] = $this->buildTransaction($transaction);
+                    if ($record->OrderStatus->PaidTime instanceof \DateTime) {
+                        $trData->paidTime = $record->OrderStatus->PaidTime->format('Y-m-d H:i:s');
+                    }
 
-//                return $transactionsList;
+                    $trData->purchasePrice = $record->OrderStatus->PaidStatus;
+                    $trData->paymentStatus = $record->OrderStatus->PaidStatus;
+                    $trData->paymentMethod = $record->OrderStatus->PaymentMethodUsed;
+
+                    /**
+                     * Parse customer data
+                     */
+                    $trData->customerData->userId = $record->BuyerID;
+                    $trData->customerData->customerMail = $record->BuyerEmail;
+
+                    $trData->totalPrice = $record->TotalAmount->value;
+                    $trData->currency = $record->TotalAmount->currencyID;
+                    $trData->purchasePrice = $record->SalePrice->value;
+
+                    $trData->shippingData->status = $record->OrderStatus->ShippedStatus;
+                    $trData->shippingData->cost = $record->ActualShippingCost->value;
+
+                    $transactionsList[$transaction->TransactionID][] = $trData;
+                }
+
+                // TODO: Remove
+                return $transactionsList;
             }
         }
 
@@ -206,7 +230,7 @@ class Ebay extends AbstractAdapter
     /**
      * Parse a SellingManagerSoldOrderType and return a Transaction object
      *
-     * @param \DTS\eBaySDK\Trading\Types\SellingManagerSoldOrderType $transaction
+     * @param \DTS\eBaySDK\Trading\Types\SellingManagerSoldTransactionType $transaction
      * @return Transaction
      */
     protected function buildTransaction($transaction)
@@ -222,55 +246,37 @@ class Ebay extends AbstractAdapter
         /**
          * Parse transaction data
          */
-        $trData->marketTransactionId = $transaction->SellingManagerSoldTransaction[0]->TransactionID;
-        $trData->saleCounter = $transaction->SellingManagerSoldTransaction[0]->SaleRecordID;
-        $trData->quantityPurchased = $transaction->SellingManagerSoldTransaction[0]->QuantitySold;
-        $trData->paymentStatus = $transaction->OrderStatus->PaidStatus;
-        $trData->paymentMethod = $transaction->OrderStatus->PaymentMethodUsed;
-
-        if ($transaction->OrderStatus->PaidTime instanceof \DateTime) {
-            $trData->paidTime = $transaction->OrderStatus->PaidTime->format('Y-m-d H:i:s');
-        }
-
-        $trData->purchasePrice = $transaction->OrderStatus->PaidStatus;
-
-        /**
-         * Parse customer data
-         */
-        $trData->customerData->userId = $transaction->BuyerID;
-        $trData->customerData->customerMail = $transaction->BuyerEmail;
+        $trData->marketTransactionId = $transaction->TransactionID;
+        $trData->saleCounter = $transaction->SaleRecordID;
+        $trData->quantityPurchased = $transaction->QuantitySold;
 
         /**
          * Parse product data
          */
-        $trData->productData->marketProductId = $transaction->SellingManagerSoldTransaction[0]->ItemID;
-        $trData->productData->description = $transaction->SellingManagerSoldTransaction[0]->ItemTitle;
-        $trData->productData->vendorProductId = $transaction->SellingManagerSoldTransaction[0]->CustomLabel;
-
-        $trData->totalPrice = $transaction->TotalAmount->value;
-        $trData->currency = $transaction->TotalAmount->currencyID;
-        $trData->purchasePrice = $transaction->SalePrice->value;
+        $trData->productData->marketProductId = $transaction->ItemID;
+        $trData->productData->description = $transaction->ItemTitle;
+        $trData->productData->vendorProductId = $transaction->CustomLabel;
 
         /**
          * Get shipping information
          */
-        $saleRecord->ItemID = $transaction->SellingManagerSoldTransaction[0]->ItemID;
-        $saleRecord->TransactionID = (string)$transaction->SellingManagerSoldTransaction[0]->TransactionID;
+        $saleRecord->ItemID = $transaction->ItemID;
+        $saleRecord->TransactionID = (string)$transaction->TransactionID;
         $saleRecordData = $this->tradingService->getSellingManagerSaleRecord($saleRecord);
 
         /**
          * Parse shipping information
          */
         $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+        $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
         $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
         $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
         $trData->shippingData->state = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
         $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
         $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
         $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
         $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
-        $trData->shippingData->status = $transaction->OrderStatus->ShippedStatus;
-        $trData->shippingData->cost = $transaction->OrderStatus->ShippedStatus;
 
         return $trData;
     }
