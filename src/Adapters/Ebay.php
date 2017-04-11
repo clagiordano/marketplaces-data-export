@@ -216,11 +216,11 @@ class Ebay extends AbstractAdapter
                     $trData->shippingData->status = $record->OrderStatus->ShippedStatus;
                     $trData->shippingData->cost = $record->ActualShippingCost->value;
 
-                    $transactionsList[$transaction->TransactionID][] = $trData;
+                    $transactionsList[$record->SaleRecordID][] = $trData;
                 }
 
                 // TODO: Remove
-                return $transactionsList;
+//                return $transactionsList;
             }
         }
 
