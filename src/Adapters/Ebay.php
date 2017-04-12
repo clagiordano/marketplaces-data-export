@@ -277,9 +277,32 @@ class Ebay extends AbstractAdapter
         $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
         $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
         $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
-        $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
-        $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
+            $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2)) {
+            $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
+        }
 
         return $trData;
+    }
+
+    /**
+     * Require and returns a user data object for requested customer
+     *
+     * @param string $userId
+     * @return Types\GetUserResponseType
+     */
+    protected function getCustomerDetail($userId)
+    {
+        $request = new Types\GetUserRequestType();
+        $request->UserID = $userId;
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $customerData = $this->tradingService->getUser($request);
+
+        return $customerData;
     }
 }
