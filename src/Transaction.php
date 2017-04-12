@@ -12,15 +12,12 @@ class Transaction
     public $customerData = null;
     /** @var Product|null $productData */
     public $productData = null;
-
     /** @var int|null $marketTransactionId */
     public $marketTransactionId = null;
     /** @var int|null $quantityPurchased */
     public $quantityPurchased = null;
     /** @var float|null $purchasePrice */
     public $purchasePrice = null;
-//    /** @var bool $isSettled settled or not */
-//    public $isSettled = false;
     /** @var float|null $totalPrice */
     public $totalPrice = null;
     /** @var string|null  */
@@ -33,10 +30,10 @@ class Transaction
     public $currency = null;
     /** @var int|null $saleCounter */
     public $saleCounter = null;
-//    /** @var array $productList */
-//    public $productList = [];
-
+    /** @var Shipping|null $shippingData */
     public $shippingData = null;
+    /** @var string|null $customerNotes */
+    public $customerNotes = null;
 
     /**
      * Transaction constructor.
