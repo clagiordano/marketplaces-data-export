@@ -6,7 +6,7 @@ use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
-use DTS\eBaySDK\Trading\Services\TradingService;
+use \DTS\eBaySDK\Trading\Services\TradingService;
 use \DTS\eBaySDK\Trading\Types;
 use \DTS\eBaySDK\Trading\Enums;
 
@@ -273,7 +273,7 @@ class Ebay extends AbstractAdapter
             $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
             $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
         }
-        
+
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1)) {
             $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
         }
