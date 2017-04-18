@@ -269,14 +269,34 @@ class Ebay extends AbstractAdapter
         /**
          * Parse shipping information
          */
-        $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
-        $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
-        $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
-        $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
-        $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
-        $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
-        $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
-        $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name)) {
+            $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+            $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+        }
+        
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1)) {
+            $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName)) {
+            $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince)) {
+            $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country)) {
+            $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone)) {
+            $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
+            $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        }
 
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
             $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
