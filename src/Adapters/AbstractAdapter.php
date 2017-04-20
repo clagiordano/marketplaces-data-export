@@ -3,13 +3,13 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
-use clagiordano\MarketplacesDataExport\Interfaces\ExportInterface;
+use clagiordano\MarketplacesDataExport\Interfaces\AdapterInterface;
 
 /**
  * Class AbstractAdapter
  * @package clagiordano\MarketplacesDataExport\Adapters
  */
-abstract class AbstractAdapter implements ExportInterface
+abstract class AbstractAdapter implements AdapterInterface
 {
     /** @var Config $adapterConfig */
     protected $adapterConfig = null;
