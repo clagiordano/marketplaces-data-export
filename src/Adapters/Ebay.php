@@ -170,10 +170,8 @@ class Ebay extends AbstractAdapter
         $this->tradingService = new TradingService($this->serviceConfig);
         $request = new Types\GetSellingManagerSoldListingsRequestType();
 
-
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
-
 
         $response = $this->tradingService->getSellingManagerSoldListings($request);
 
