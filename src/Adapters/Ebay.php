@@ -203,6 +203,10 @@ class Ebay extends AbstractAdapter
                     $trData->paymentStatus = $record->OrderStatus->PaidStatus;
                     $trData->paymentMethod = $record->OrderStatus->PaymentMethodUsed;
 
+                    if ($record->CreationTime instanceof \DateTime) {
+                        $trData->transactionDate = $record->CreationTime->format('Y-m-d H:i:s');
+                    }
+
                     /**
                      * Parse customer data
                      */

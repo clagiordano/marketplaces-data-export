@@ -34,6 +34,8 @@ class Transaction
     public $shippingData = null;
     /** @var string|null $customerNotes */
     public $customerNotes = null;
+    /** @var string $transactionDate */
+    public $transactionDate = null;
 
     /**
      * Transaction constructor.
