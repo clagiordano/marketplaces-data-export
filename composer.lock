@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1003b30051a183b04c43816ec74103fc",
-    "content-hash": "d24d4091f45c2b5e40a2597138624296",
+    "hash": "49328bddb4f13d8398c6c305dbb06afe",
+    "content-hash": "f2e0e81bc0e5554eb0aab74f5eb13328",
     "packages": [
         {
             "name": "clagiordano/weblibs-configmanager",
@@ -56,16 +56,16 @@
         },
         {
             "name": "dts/ebay-sdk-php",
-            "version": "10.0.0",
+            "version": "11.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/davidtsadler/ebay-sdk-php.git",
-                "reference": "8da242b0603fbfd22abbce063eb7d854b74ed656"
+                "reference": "3f730148d5caa639eb1407c0c4a4c5e356a1b752"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/davidtsadler/ebay-sdk-php/zipball/8da242b0603fbfd22abbce063eb7d854b74ed656",
-                "reference": "8da242b0603fbfd22abbce063eb7d854b74ed656",
+                "url": "https://api.github.com/repos/davidtsadler/ebay-sdk-php/zipball/3f730148d5caa639eb1407c0c4a4c5e356a1b752",
+                "reference": "3f730148d5caa639eb1407c0c4a4c5e356a1b752",
                 "shasum": ""
             },
             "require": {
@@ -105,7 +105,7 @@
                 "ebay",
                 "sdk"
             ],
-            "time": "2017-03-17 10:05:04"
+            "time": "2017-03-20 16:23:39"
         },
         {
             "name": "econea/nusoap",
