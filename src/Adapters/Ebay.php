@@ -9,6 +9,7 @@ use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
 use \DTS\eBaySDK\Trading\Types;
 use \DTS\eBaySDK\Trading\Enums;
+use \DateTime;
 
 /**
  * Class Ebay
@@ -49,6 +50,7 @@ class Ebay extends AbstractAdapter
             'ruName'      => $this->adapterConfig->getValue("{$section}.ruName"),
             'siteId'      => SiteIds::IT,   // TODO migrate to config file
             'sandbox'     => $this->isSandboxMode,
+//            'apiVersion'  => "997",
         ];
         $this->appToken = $this->adapterConfig->getValue("{$section}.authToken");
         $this->appTokenExpireAt = strtotime("+ 7200 seconds");
@@ -173,6 +175,10 @@ class Ebay extends AbstractAdapter
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
+        $request->SaleDateRange = new Types\TimeRangeType();
+        $request->SaleDateRange->TimeFrom = new DateTime('2017-04-25 00:00:00');
+        $request->SaleDateRange->TimeTo = new DateTime('2017-04-25 23:59:59');
+
         $response = $this->tradingService->getSellingManagerSoldListings($request);
 
         if (isset($response->Errors)) {
@@ -191,7 +197,12 @@ class Ebay extends AbstractAdapter
         if ($response->Ack !== 'Failure' && isset($response->SaleRecord)) {
             foreach ($response->SaleRecord as $record) {
                 foreach ($record->SellingManagerSoldTransaction as $transaction) {
-                    $trData = $this->buildTransaction($transaction);
+                    if (count($response->SaleRecord) == 1) {
+                        $trData = $this->buildTransaction($transaction);
+                    } else {
+                        echo "STIcazzi!";
+                        $trData = $this->buildTransactionByOrderId($transaction->OrderLineItemID);
+                    }
 
                     if ($record->OrderStatus->PaidTime instanceof \DateTime) {
                         $trData->paidTime = $record->OrderStatus->PaidTime->format('Y-m-d H:i:s');
@@ -220,9 +231,6 @@ class Ebay extends AbstractAdapter
 
                     $transactionsList[$record->SaleRecordID][] = $trData;
                 }
-
-                // TODO: Remove
-//                return $transactionsList;
             }
         }
 
@@ -244,8 +252,6 @@ class Ebay extends AbstractAdapter
         $saleRecord->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
         $trData = new Transaction();
-
-        /** TODO Check if array has only 1 element */
 
         /**
          * Parse transaction data
@@ -326,5 +332,103 @@ class Ebay extends AbstractAdapter
         $customerData = $this->tradingService->getUser($request);
 
         return $customerData;
+    }
+
+    protected function getOrders($orderIDArray)
+    {
+        $request = new Types\GetOrdersRequestType();
+//        $request->DetailLevel = Enums\DetailLevelCodeType::C_RETURN_ALL;
+        $request->OrderIDArray = new Types\OrderIDArrayType();
+//        $request->OrderIDArray->OrderID = new RepType('array', $orderIDArray);
+//        $request->OrderIDArray->OrderID = $orderIDArray;
+//        print_r($request->OrderIDArray);
+        echo "Set order id";
+        $request->OrderIDArray->OrderID = (string)"132150793569-1343233064003";
+
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+        print_r($request->OrderIDArray);
+
+        die("ORDER");
+        $ordersData = $this->tradingService->getOrders($request);
+
+        var_dump($ordersData);
+
+        return $ordersData;
+    }
+
+    protected function buildTransactionByOrderId($orderIDArray)
+    {
+        $orderData = $this->getOrders($orderIDArray);
+
+        print_r($orderData);
+
+        die("POR");
+
+        $trData = new Transaction();
+
+        /**
+         * Parse transaction data
+         */
+        $trData->marketTransactionId = $transaction->TransactionID;
+        $trData->saleCounter = $transaction->SaleRecordID;
+        $trData->quantityPurchased = $transaction->QuantitySold;
+
+        /**
+         * Parse product data
+         */
+        $trData->productData->marketProductId = $transaction->ItemID;
+        $trData->productData->description = $transaction->ItemTitle;
+        $trData->productData->vendorProductId = $transaction->CustomLabel;
+
+        /**
+         * Get shipping information
+         */
+        $saleRecord->ItemID = $transaction->ItemID;
+        $saleRecord->TransactionID = (string)$transaction->TransactionID;
+        $saleRecordData = $this->tradingService->getSellingManagerSaleRecord($saleRecord);
+
+        /**
+         * Parse shipping information
+         */
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name)) {
+            $trData->shippingData->contact = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+            $trData->customerData->customerName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Name;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1)) {
+            $trData->shippingData->address = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Street1;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName)) {
+            $trData->shippingData->cityName = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->CityName;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince)) {
+            $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country)) {
+            $trData->shippingData->countryCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone)) {
+            $trData->shippingData->phone = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
+            $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
+            $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
+        }
+
+        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2)) {
+            $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
+        }
+
+        return $trData;
     }
 }
