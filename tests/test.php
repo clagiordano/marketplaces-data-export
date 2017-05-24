@@ -11,9 +11,18 @@ use clagiordano\MarketplacesDataExport\Transaction;
 $config = new Config(__DIR__ . '/../testdata/ebay.php');
 
 $ebay = new Ebay($config, false);
+
+$trdata = new Transaction();
+$trdata->marketTransactionId = 1351093638003;
+$trdata->productData->marketProductId = 132196375278;
+
+$resp = $ebay->completeSale($trdata, true);
+
+
+
 //print_r($ebay->getAppToken());
 //print_r($ebay->getSoldList());
-$data = $ebay->getSoldListings();
+//$data = $ebay->getSoldListings();
 
 //print_r($data);
 
@@ -23,12 +32,12 @@ $outFile = __DIR__ . '/../testdata/out/out_sample.csv';
 //file_put_contents($outFile, $outLine);
 
 
-foreach ($data as $code => $transaction) {
-    if (count($transaction) > 1) {
-        var_dump($code);
-        print_r($transaction);
-        die("TR");
-    }
+//foreach ($data as $code => $transaction) {
+//    if (count($transaction) > 1) {
+//        var_dump($code);
+//        print_r($transaction);
+//        die("TR");
+//    }
 
 //    foreach ($transaction as $item) {
 //        /** @var Transaction $item */
@@ -66,4 +75,4 @@ foreach ($data as $code => $transaction) {
 
 //        file_put_contents($outFile, $outLine, FILE_APPEND);
 //    }
-}
+//}

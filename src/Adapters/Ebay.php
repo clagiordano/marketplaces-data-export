@@ -88,6 +88,20 @@ class Ebay extends AbstractAdapter
     }
 
     /**
+     * @return TradingService|null
+     */
+    protected function getTradingService()
+    {
+        if (!is_null($this->tradingService)) {
+            return $this->tradingService;
+        }
+
+        $this->tradingService = new TradingService($this->serviceConfig);
+
+        return $this->tradingService;
+    }
+
+    /**
      * Returns simple solds list
      *
      * @return array|bool
@@ -171,7 +185,6 @@ class Ebay extends AbstractAdapter
     {
         $transactionsList = [];
 
-        $this->tradingService = new TradingService($this->serviceConfig);
         $request = new Types\GetSellingManagerSoldListingsRequestType();
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
@@ -183,7 +196,7 @@ class Ebay extends AbstractAdapter
             $request->SaleDateRange->TimeTo = $intervalEnd;
         }
 
-        $response = $this->tradingService->getSellingManagerSoldListings($request);
+        $response = $this->getTradingService()->getSellingManagerSoldListings($request);
 
         if (isset($response->Errors)) {
             foreach ($response->Errors as $error) {
@@ -275,7 +288,7 @@ class Ebay extends AbstractAdapter
          */
         $saleRecord->ItemID = $transaction->ItemID;
         $saleRecord->TransactionID = (string)$transaction->TransactionID;
-        $saleRecordData = $this->tradingService->getSellingManagerSaleRecord($saleRecord);
+        $saleRecordData = $this->getTradingService()->getSellingManagerSaleRecord($saleRecord);
 
         /**
          * Parse shipping information
@@ -332,7 +345,7 @@ class Ebay extends AbstractAdapter
         $request->UserID = $userId;
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        $customerData = $this->tradingService->getUser($request);
+        $customerData = $this->getTradingService()->getUser($request);
 
         return $customerData;
     }
@@ -352,7 +365,7 @@ class Ebay extends AbstractAdapter
         $request->OrderIDArray = new Types\OrderIDArrayType();
         $request->OrderIDArray->OrderID[] = $orderListingId;
 
-        $ordersData = $this->tradingService->getOrders($request);
+        $ordersData = $this->getTradingService()->getOrders($request);
 
         return $ordersData;
     }
@@ -430,8 +443,8 @@ class Ebay extends AbstractAdapter
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        $request->ItemID = $traData->marketTransactionId;
-        $request->TransactionID = $traData->productData->marketProductId;
+        $request->ItemID[] = $traData->marketTransactionId;
+        $request->TransactionID[] = $traData->productData->marketProductId;
 
         if (!is_null($shippingStatus)) {
             $request->Shipped = $shippingStatus;
@@ -441,6 +454,6 @@ class Ebay extends AbstractAdapter
             $request->FeedbackInfo = $feedback;
         }
 
-        return $this->tradingService->completeSale($request);
+        return $this->getTradingService()->completeSale($request);
     }
 }
