@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
+use DTS\eBaySDK\Merchandising\Types\Item;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
@@ -431,27 +432,26 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * @param Transaction $traData
+     * @param Transaction $trData
      * @param null|boolean $shippingStatus
-     * @param null|string $feedback
+     * @param null|string $feedbackMessage
      * @return Types\CompleteSaleResponseType
      */
-    public function completeSale(Transaction $traData, $shippingStatus = null, $feedback = null)
+    public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
     {
         $request = new Types\CompleteSaleRequestType();
-
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        $request->ItemID[] = $traData->marketTransactionId;
-        $request->TransactionID[] = $traData->productData->marketProductId;
+        $request->TransactionID = (string)$trData->marketTransactionId;
+        $request->ItemID = (string)$trData->productData->marketProductId;
 
         if (!is_null($shippingStatus)) {
             $request->Shipped = $shippingStatus;
         }
 
-        if (!is_null($feedback)) {
-            $request->FeedbackInfo = $feedback;
+        if (!is_null($feedbackMessage)) {
+            $request->FeedbackInfo = $feedbackMessage;
         }
 
         return $this->getTradingService()->completeSale($request);

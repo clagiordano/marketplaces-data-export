@@ -18,7 +18,7 @@ $trdata->productData->marketProductId = 132196375278;
 
 $resp = $ebay->completeSale($trdata, true);
 
-
+print_r($resp);
 
 //print_r($ebay->getAppToken());
 //print_r($ebay->getSoldList());
