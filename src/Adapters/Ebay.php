@@ -200,15 +200,6 @@ class Ebay extends AbstractAdapter
         $response = $this->getTradingService()->getSellingManagerSoldListings($request);
 
         if (isset($response->Errors)) {
-            foreach ($response->Errors as $error) {
-                printf(
-                    "%s: %s\n%s\n\n",
-                    $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
-                    $error->ShortMessage,
-                    $error->LongMessage
-                );
-            }
-
             return false;
         }
 
