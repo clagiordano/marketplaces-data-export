@@ -416,4 +416,31 @@ class Ebay extends AbstractAdapter
 
         return $trData;
     }
+
+    /**
+     * @param Transaction $traData
+     * @param null|boolean $shippingStatus
+     * @param null|string $feedback
+     * @return Types\CompleteSaleResponseType
+     */
+    public function completeSale(Transaction $traData, $shippingStatus = null, $feedback = null)
+    {
+        $request = new Types\CompleteSaleRequestType();
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $request->ItemID = $traData->marketTransactionId;
+        $request->TransactionID = $traData->productData->marketProductId;
+
+        if (!is_null($shippingStatus)) {
+            $request->Shipped = $shippingStatus;
+        }
+
+        if (!is_null($feedback)) {
+            $request->FeedbackInfo = $feedback;
+        }
+
+        return $this->tradingService->completeSale($request);
+    }
 }
