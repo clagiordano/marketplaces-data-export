@@ -4,7 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
-use DTS\eBaySDK\Merchandising\Types\Item;
+use DTS\eBaySDK\Inventory\Services\InventoryService;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
@@ -29,6 +29,8 @@ class Ebay extends AbstractAdapter
     protected $appTokenExpireAt = 0;
     /** @var null|TradingService $tradingService */
     protected $tradingService = null;
+    /** @var null|InventoryService $inventoryService */
+    protected $inventoryService = null;
 
     /**
      * Ebay constructor.
@@ -100,6 +102,20 @@ class Ebay extends AbstractAdapter
         $this->tradingService = new TradingService($this->serviceConfig);
 
         return $this->tradingService;
+    }
+
+    /**
+     * @return InventoryService|null
+     */
+    protected function getInventoryService()
+    {
+        if (!is_null($this->inventoryService)) {
+            return $this->inventoryService;
+        }
+
+        $this->inventoryService = new TradingService($this->serviceConfig);
+
+        return $this->inventoryService;
     }
 
     /**
@@ -446,5 +462,30 @@ class Ebay extends AbstractAdapter
         }
 
         return $this->getTradingService()->completeSale($request);
+    }
+
+    public function getSellingList()
+    {
+        $request = new Types\GetMyeBaySellingRequestType();
+
+        $request->ActiveList = new Types\ItemListCustomizationType();
+        $request->ActiveList->Include = true;
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        /** @var Types\GetMyeBaySellingResponseType $out */
+        $out = $this->getTradingService()->getMyeBaySelling($request);
+
+        var_dump($out->ActiveList->ItemArray);
+
+        var_dump($out->Ack);
+
+
+        foreach ($out->ActiveList->ItemArray->Item as $elem) {
+            print_r($elem);
+            die("AAA");
+        }
+
+//        print_r($out);
     }
 }
