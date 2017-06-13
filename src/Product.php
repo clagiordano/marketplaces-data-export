@@ -12,10 +12,12 @@ class Product
     public $marketProductId = null;
     /** @var string|null $vendorProductId */
     public $vendorProductId = null;
-    /** @var string|null $description */
-    public $description = null;
-    /** @var int $storedAmount */
+    /** @var string $description */
+    public $description = "";
+    /** @var integer $storedAmount */
     public $storedAmount = 0;
+    /** @var integer $availableAmount */
+    public $availableAmount = 0;
 
     /**
      * @param string $name
