@@ -471,11 +471,6 @@ class Ebay extends AbstractAdapter
 
         $request->ActiveList = new Types\ItemListCustomizationType();
         $request->ActiveList->Include = true;
-//        $request->ActiveList->Sort = Enums\ItemSortTypeCodeType::C_CUSTOM_CODE;
-
-        $request->UnsoldList = new Types\ItemListCustomizationType();
-        $request->UnsoldList->Include = true;
-//        $request->UnsoldList->Sort = Enums\ItemSortTypeCodeType::C_CUSTOM_CODE;
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
@@ -483,26 +478,17 @@ class Ebay extends AbstractAdapter
         /** @var Types\GetMyeBaySellingResponseType $out */
         $out = $this->getTradingService()->getMyeBaySelling($request);
 
-//        var_dump($out->Ack);
-//        var_dump(count($out->ActiveList->ItemArray->Item));
-//        var_dump(count($out->UnsoldList->ItemArray->Item));
-
         $products = [];
-        foreach ($out->UnsoldList->ItemArray->Item as $key => $item) {
+        foreach ($out->ActiveList->ItemArray->Item as $item) {
             $products[] = $this->itemToProduct($item);
         }
-
-        foreach ($out->ActiveList->ItemArray->Item as $key => $item) {
-            $products[] = $this->itemToProduct($item);
-        }
-
-//        print_r($products);
 
         return $products;
     }
 
     /**
      * Returns a Product from an Ebay ItemType
+     * g
      * @param Types\ItemType $item
      * @return Product;
      */
@@ -513,6 +499,8 @@ class Ebay extends AbstractAdapter
         $product->description = $item->Title;
         $product->marketProductId = $item->ItemID;
         $product->vendorProductId = $item->SKU;
+        $product->availableAmount = $item->QuantityAvailable;
+        $product->storedAmount = $item->Quantity;
 
         return $product;
     }
