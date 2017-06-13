@@ -11,6 +11,7 @@ use \DTS\eBaySDK\Trading\Services\TradingService;
 use \DTS\eBaySDK\Trading\Types;
 use \DTS\eBaySDK\Trading\Enums;
 use \DateTime;
+use clagiordano\MarketplacesDataExport\Product;
 
 /**
  * Class Ebay
@@ -470,22 +471,49 @@ class Ebay extends AbstractAdapter
 
         $request->ActiveList = new Types\ItemListCustomizationType();
         $request->ActiveList->Include = true;
+//        $request->ActiveList->Sort = Enums\ItemSortTypeCodeType::C_CUSTOM_CODE;
+
+        $request->UnsoldList = new Types\ItemListCustomizationType();
+        $request->UnsoldList->Include = true;
+//        $request->UnsoldList->Sort = Enums\ItemSortTypeCodeType::C_CUSTOM_CODE;
+
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
         /** @var Types\GetMyeBaySellingResponseType $out */
         $out = $this->getTradingService()->getMyeBaySelling($request);
 
-        var_dump($out->ActiveList->ItemArray);
+//        var_dump($out->Ack);
+//        var_dump(count($out->ActiveList->ItemArray->Item));
+//        var_dump(count($out->UnsoldList->ItemArray->Item));
 
-        var_dump($out->Ack);
-
-
-        foreach ($out->ActiveList->ItemArray->Item as $elem) {
-            print_r($elem);
-            die("AAA");
+        $products = [];
+        foreach ($out->UnsoldList->ItemArray->Item as $key => $item) {
+            $products[] = $this->itemToProduct($item);
         }
 
-//        print_r($out);
+        foreach ($out->ActiveList->ItemArray->Item as $key => $item) {
+            $products[] = $this->itemToProduct($item);
+        }
+
+//        print_r($products);
+
+        return $products;
+    }
+
+    /**
+     * Returns a Product from an Ebay ItemType
+     * @param Types\ItemType $item
+     * @return Product;
+     */
+    protected function itemToProduct(Types\ItemType $item)
+    {
+        $product = new Product();
+
+        $product->description = $item->Title;
+        $product->marketProductId = $item->ItemID;
+        $product->vendorProductId = $item->SKU;
+
+        return $product;
     }
 }
