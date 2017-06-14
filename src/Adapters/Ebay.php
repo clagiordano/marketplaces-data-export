@@ -4,13 +4,14 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
-use DTS\eBaySDK\Merchandising\Types\Item;
+use DTS\eBaySDK\Inventory\Services\InventoryService;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
 use \DTS\eBaySDK\Trading\Types;
 use \DTS\eBaySDK\Trading\Enums;
 use \DateTime;
+use clagiordano\MarketplacesDataExport\Product;
 
 /**
  * Class Ebay
@@ -29,6 +30,8 @@ class Ebay extends AbstractAdapter
     protected $appTokenExpireAt = 0;
     /** @var null|TradingService $tradingService */
     protected $tradingService = null;
+    /** @var null|InventoryService $inventoryService */
+    protected $inventoryService = null;
 
     /**
      * Ebay constructor.
@@ -100,6 +103,20 @@ class Ebay extends AbstractAdapter
         $this->tradingService = new TradingService($this->serviceConfig);
 
         return $this->tradingService;
+    }
+
+    /**
+     * @return InventoryService|null
+     */
+    protected function getInventoryService()
+    {
+        if (!is_null($this->inventoryService)) {
+            return $this->inventoryService;
+        }
+
+        $this->inventoryService = new TradingService($this->serviceConfig);
+
+        return $this->inventoryService;
     }
 
     /**
@@ -446,5 +463,45 @@ class Ebay extends AbstractAdapter
         }
 
         return $this->getTradingService()->completeSale($request);
+    }
+
+    public function getSellingList()
+    {
+        $request = new Types\GetMyeBaySellingRequestType();
+
+        $request->ActiveList = new Types\ItemListCustomizationType();
+        $request->ActiveList->Include = true;
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        /** @var Types\GetMyeBaySellingResponseType $out */
+        $out = $this->getTradingService()->getMyeBaySelling($request);
+
+        $products = [];
+        foreach ($out->ActiveList->ItemArray->Item as $item) {
+            $products[] = $this->itemToProduct($item);
+        }
+
+        return $products;
+    }
+
+    /**
+     * Returns a Product from an Ebay ItemType
+     * g
+     * @param Types\ItemType $item
+     * @return Product;
+     */
+    protected function itemToProduct(Types\ItemType $item)
+    {
+        $product = new Product();
+
+        $product->description = $item->Title;
+        $product->marketProductId = $item->ItemID;
+        $product->vendorProductId = $item->SKU;
+        $product->availableAmount = $item->QuantityAvailable;
+        $product->storedAmount = $item->Quantity;
+
+        return $product;
     }
 }
