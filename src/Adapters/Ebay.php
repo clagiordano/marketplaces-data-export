@@ -465,6 +465,11 @@ class Ebay extends AbstractAdapter
         return $this->getTradingService()->completeSale($request);
     }
 
+    /**
+     * Returns a product array of available marketplace items
+     *
+     * @return Product[]
+     */
     public function getSellingList()
     {
         $request = new Types\GetMyeBaySellingRequestType();
