@@ -5,6 +5,7 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
 use DTS\eBaySDK\Inventory\Services\InventoryService;
+use DTS\eBaySDK\Merchandising\Types\Item;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
@@ -508,5 +509,22 @@ class Ebay extends AbstractAdapter
         $product->storedAmount = $item->Quantity;
 
         return $product;
+    }
+
+    public function testCall()
+    {
+        $request = new Types\ReviseSellingManagerProductRequestType();
+
+        $request->SellingManagerProductDetails = new Types\SellingManagerProductDetailsType();
+        $request->SellingManagerProductDetails->ProductID = 132196375278;
+        $request->SellingManagerProductDetails->QuantityAvailable = 12;
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        /** @var Types\GetMyeBaySellingResponseType $out */
+        $out = $this->getTradingService()->reviseSellingManagerProduct($request);
+
+        print_r($out);
     }
 }
