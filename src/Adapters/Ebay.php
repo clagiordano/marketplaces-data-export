@@ -5,7 +5,6 @@ namespace clagiordano\MarketplacesDataExport\Adapters;
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
 use DTS\eBaySDK\Inventory\Services\InventoryService;
-use DTS\eBaySDK\Merchandising\Types\Item;
 use \DTS\eBaySDK\OAuth\Services;
 use \DTS\eBaySDK\Constants\SiteIds;
 use \DTS\eBaySDK\Trading\Services\TradingService;
@@ -485,8 +484,10 @@ class Ebay extends AbstractAdapter
         $out = $this->getTradingService()->getMyeBaySelling($request);
 
         $products = [];
-        foreach ($out->ActiveList->ItemArray->Item as $item) {
-            $products[] = $this->itemToProduct($item);
+        if (isset($out->ActiveList->ItemArray->Item)) {
+            foreach ($out->ActiveList->ItemArray->Item as $item) {
+                $products[] = $this->itemToProduct($item);
+            }
         }
 
         return $products;
@@ -511,20 +512,45 @@ class Ebay extends AbstractAdapter
         return $product;
     }
 
-    public function testCall()
+    /**
+     * @param Product[] $products
+     * @return boolean Operation status;
+     */
+    public function reviseInventoryStatus(array $products)
     {
-        $request = new Types\ReviseSellingManagerProductRequestType();
+        $request = new Types\ReviseInventoryStatusRequestType();
 
-        $request->SellingManagerProductDetails = new Types\SellingManagerProductDetailsType();
-        $request->SellingManagerProductDetails->ProductID = 132196375278;
-        $request->SellingManagerProductDetails->QuantityAvailable = 12;
+
+        foreach ($products as $product) {
+            if (!$product instanceof Product) {
+                throw new \InvalidArgumentException("Error, invalid products element supplied");
+            }
+
+            $inventoryStatus = new Types\InventoryStatusType();
+            $inventoryStatus->ItemID = $product->marketProductId;
+            $inventoryStatus->Quantity = $product->availableAmount;
+            $request->InventoryStatus[] = $inventoryStatus;
+        }
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
         /** @var Types\GetMyeBaySellingResponseType $out */
-        $out = $this->getTradingService()->reviseSellingManagerProduct($request);
+        $response = $this->getTradingService()->reviseInventoryStatus($request);
 
-        print_r($out);
+        if (isset($response->Errors)) {
+            foreach ($response->Errors as $error) {
+                printf(
+                    "%s: %s\n%s\n\n",
+                    $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+                    $error->ShortMessage,
+                    $error->LongMessage
+                );
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }
