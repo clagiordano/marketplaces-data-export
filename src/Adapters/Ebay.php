@@ -484,8 +484,10 @@ class Ebay extends AbstractAdapter
         $out = $this->getTradingService()->getMyeBaySelling($request);
 
         $products = [];
-        foreach ($out->ActiveList->ItemArray->Item as $item) {
-            $products[] = $this->itemToProduct($item);
+        if (isset($out->ActiveList->ItemArray->Item)) {
+            foreach ($out->ActiveList->ItemArray->Item as $item) {
+                $products[] = $this->itemToProduct($item);
+            }
         }
 
         return $products;
@@ -508,5 +510,47 @@ class Ebay extends AbstractAdapter
         $product->storedAmount = $item->Quantity;
 
         return $product;
+    }
+
+    /**
+     * @param Product[] $products
+     * @return boolean Operation status;
+     */
+    public function reviseInventoryStatus(array $products)
+    {
+        $request = new Types\ReviseInventoryStatusRequestType();
+
+
+        foreach ($products as $product) {
+            if (!$product instanceof Product) {
+                throw new \InvalidArgumentException("Error, invalid products element supplied");
+            }
+
+            $inventoryStatus = new Types\InventoryStatusType();
+            $inventoryStatus->ItemID = $product->marketProductId;
+            $inventoryStatus->Quantity = $product->availableAmount;
+            $request->InventoryStatus[] = $inventoryStatus;
+        }
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        /** @var Types\GetMyeBaySellingResponseType $out */
+        $response = $this->getTradingService()->reviseInventoryStatus($request);
+
+        if (isset($response->Errors)) {
+            foreach ($response->Errors as $error) {
+                printf(
+                    "%s: %s\n%s\n\n",
+                    $error->SeverityCode === Enums\SeverityCodeType::C_ERROR ? 'Error' : 'Warning',
+                    $error->ShortMessage,
+                    $error->LongMessage
+                );
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }
