@@ -19,6 +19,8 @@ use clagiordano\MarketplacesDataExport\Product;
  */
 class Ebay extends AbstractAdapter
 {
+    const MAX_REVISE_AT_TIME = 4;
+
     protected $service = null;
     /** @var array $serviceConfig */
     protected $serviceConfig = [];
@@ -518,9 +520,9 @@ class Ebay extends AbstractAdapter
      */
     public function reviseInventoryStatus(array $products)
     {
-        if (count($products) > 4) {
+        if (count($products) > self::MAX_REVISE_AT_TIME) {
             throw new \InvalidArgumentException(
-                "Error, supported up to 4 products at time"
+                "Error, supported up to " . self::MAX_REVISE_AT_TIME . " products at time"
             );
         }
 
