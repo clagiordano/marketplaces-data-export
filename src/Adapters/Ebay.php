@@ -513,13 +513,18 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * @param Product[] $products
+     * @param Product[] $products Supported up to 4 products at time.
      * @return boolean Operation status;
      */
     public function reviseInventoryStatus(array $products)
     {
-        $request = new Types\ReviseInventoryStatusRequestType();
+        if (count($products) > 4) {
+            throw new \InvalidArgumentException(
+                "Error, supported up to 4 products at time"
+            );
+        }
 
+        $request = new Types\ReviseInventoryStatusRequestType();
 
         foreach ($products as $product) {
             if (!$product instanceof Product) {
