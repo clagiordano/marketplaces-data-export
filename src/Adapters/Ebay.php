@@ -478,19 +478,29 @@ class Ebay extends AbstractAdapter
 
         $request->ActiveList = new Types\ItemListCustomizationType();
         $request->ActiveList->Include = true;
+        $request->ActiveList->Pagination = new Types\PaginationType();
+        $request->ActiveList->Pagination->EntriesPerPage = 25;
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
-        /** @var Types\GetMyeBaySellingResponseType $out */
-        $out = $this->getTradingService()->getMyeBaySelling($request);
-
         $products = [];
-        if (isset($out->ActiveList->ItemArray->Item)) {
-            foreach ($out->ActiveList->ItemArray->Item as $item) {
-                $products[] = $this->itemToProduct($item);
+        $pageNum = 1;
+        do {
+            $request->ActiveList->Pagination->PageNumber = $pageNum;
+
+            /** @var Types\GetMyeBaySellingResponseType $response */
+            $response = $this->getTradingService()->getMyeBaySelling($request);
+
+            if ($response->Ack !== 'Failure' && isset($response->ActiveList)) {
+                if (isset($response->ActiveList->ItemArray->Item)) {
+                    foreach ($response->ActiveList->ItemArray->Item as $item) {
+                        $products[] = $this->itemToProduct($item);
+                    }
+                }
             }
-        }
+            $pageNum += 1;
+        } while (isset($response->ActiveList) && $pageNum <= $response->ActiveList->PaginationResult->TotalNumberOfPages);
 
         return $products;
     }
