@@ -506,7 +506,7 @@ class Ebay extends AbstractAdapter
                             foreach ($item->Variations->Variation as $variation) {
                                 $product->vendorProductId = $variation->SKU;
                                 $product->description = $variation->VariationTitle;
-                                $product->hasVariations = true;
+                                $product->isVariation = true;
 
                                 $products[] = $product;
                             }

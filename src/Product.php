@@ -18,8 +18,8 @@ class Product
     public $storedAmount = 0;
     /** @var integer $availableAmount */
     public $availableAmount = 0;
-    /** @var bool $hasVariations */
-    public $hasVariations = false;
+    /** @var bool $isVariation */
+    public $isVariation = false;
 
     /**
      * @param string $name
