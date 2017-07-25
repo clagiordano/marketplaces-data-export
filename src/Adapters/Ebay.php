@@ -495,10 +495,30 @@ class Ebay extends AbstractAdapter
             if ($response->Ack !== 'Failure' && isset($response->ActiveList)) {
                 if (isset($response->ActiveList->ItemArray->Item)) {
                     foreach ($response->ActiveList->ItemArray->Item as $item) {
-                        $products[] = $this->itemToProduct($item);
+                        $product = $this->itemToProduct($item);
+
+                        if (isset($item->Variations)
+                            && isset($item->Variations->Variation)
+                            && count($item->Variations->Variation) > 1) {
+                            /**
+                             * Cycle variations to update and append variation as product
+                             */
+                            foreach ($item->Variations->Variation as $variation) {
+                                $product->vendorProductId = $variation->SKU;
+                                $product->description = $variation->VariationTitle;
+
+                                $products[] = $product;
+                            }
+                        } else {
+                            /**
+                             * Product without variations
+                             */
+                            $products[] = $product;
+                        }
                     }
                 }
             }
+
             $pageNum += 1;
         } while (isset($response->ActiveList) && $pageNum <= $response->ActiveList->PaginationResult->TotalNumberOfPages);
 
