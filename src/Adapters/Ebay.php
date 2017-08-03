@@ -506,6 +506,7 @@ class Ebay extends AbstractAdapter
                             foreach ($item->Variations->Variation as $variation) {
                                 $product->vendorProductId = $variation->SKU;
                                 $product->description = $variation->VariationTitle;
+                                $product->isVariation = true;
 
                                 $products[] = $product;
                             }
@@ -565,6 +566,7 @@ class Ebay extends AbstractAdapter
 
             $inventoryStatus = new Types\InventoryStatusType();
             $inventoryStatus->ItemID = $product->marketProductId;
+            $inventoryStatus->SKU = $product->vendorProductId;
             $inventoryStatus->Quantity = $product->availableAmount;
             $request->InventoryStatus[] = $inventoryStatus;
         }
