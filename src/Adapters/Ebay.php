@@ -504,8 +504,11 @@ class Ebay extends AbstractAdapter
                              * Cycle variations to update and append variation as product
                              */
                             foreach ($item->Variations->Variation as $variation) {
+                                $product = clone $product;
+
                                 $product->vendorProductId = $variation->SKU;
                                 $product->description = $variation->VariationTitle;
+                                $product->storedAmount = $variation->Quantity;
                                 $product->isVariation = true;
 
                                 $products[] = $product;
@@ -567,7 +570,15 @@ class Ebay extends AbstractAdapter
             $inventoryStatus = new Types\InventoryStatusType();
             $inventoryStatus->ItemID = $product->marketProductId;
             $inventoryStatus->SKU = $product->vendorProductId;
-            $inventoryStatus->Quantity = $product->availableAmount;
+
+            if ($product->isVariation === false) {
+                $inventoryStatus->Quantity = $product->availableAmount;
+            }
+
+            if ($product->isVariation === true) {
+                $inventoryStatus->Quantity = $product->storedAmount;
+            }
+
             $request->InventoryStatus[] = $inventoryStatus;
         }
 
