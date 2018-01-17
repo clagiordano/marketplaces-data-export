@@ -13,13 +13,23 @@ use Prophecy\Argument;
  */
 class EbaySpec extends ObjectBehavior
 {
+    protected $configPath = __DIR__ . '/../../../../testdata/ebay.php';
+
     /**
-     * @param Config $config
      */
-    function it_is_initializable(Config $config)
+    function it_is_initializable()
     {
-        $config->loadConfig('../../../../testdata/ebay.php');
-        $this->beConstructedWith($config);
+        $config = new Config($this->configPath);
+        $this->beConstructedWith($config, false);
         $this->shouldHaveType(Ebay::class);
+    }
+
+    /**
+     */
+    function it_returns_app_token()
+    {
+        $config = new Config($this->configPath);
+        $this->beConstructedWith($config, false);
+        $this->getAppToken()->shouldMatch('/\w+/');
     }
 }
