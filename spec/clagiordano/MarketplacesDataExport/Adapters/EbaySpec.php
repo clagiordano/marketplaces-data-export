@@ -13,6 +13,9 @@ use Prophecy\Argument;
  */
 class EbaySpec extends ObjectBehavior
 {
+    /**
+     * @param Config $config
+     */
     function it_is_initializable(Config $config)
     {
         $config->loadConfig('../../../../testdata/ebay.php');
