@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "49328bddb4f13d8398c6c305dbb06afe",
-    "content-hash": "f2e0e81bc0e5554eb0aab74f5eb13328",
+    "hash": "0b5625855033d7fc569fc190200fd608",
+    "content-hash": "b75044c5b94c2fd80e87de96dd9d6e8d",
     "packages": [
         {
             "name": "clagiordano/weblibs-configmanager",
@@ -53,6 +53,45 @@
                 "weblibs"
             ],
             "time": "2016-08-23 19:11:20"
+        },
+        {
+            "name": "cpigroup/php-amazon-mws",
+            "version": "1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CPIGroup/phpAmazonMWS.git",
+                "reference": "7ab8701abe20144537ab0ca0d4de8fb7f0156176"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CPIGroup/phpAmazonMWS/zipball/7ab8701abe20144537ab0ca0d4de8fb7f0156176",
+                "reference": "7ab8701abe20144537ab0ca0d4de8fb7f0156176",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4.0.0, <6.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "includes/classes/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "An open-source library to connect to Amazon's MWS web services in an object-oriented manner, with a focus on intuitive usage.",
+            "keywords": [
+                "amazon",
+                "api",
+                "php"
+            ],
+            "time": "2017-11-17 17:59:43"
         },
         {
             "name": "dts/ebay-sdk-php",
