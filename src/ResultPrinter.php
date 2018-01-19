@@ -3,6 +3,7 @@
 namespace clagiordano\MarketplacesDataExport;
 
 use PHPUnit_Framework_Test;
+use PHPUnit_Framework_TestSuite;
 
 /**
  * Class ResultPrinter
@@ -10,10 +11,6 @@ use PHPUnit_Framework_Test;
  */
 class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
 {
-    /** @var string $previousClassName */
-    protected $previousClassName = null;
-    /** @var string $className */
-    protected $className = null;
     /** @var float $executionTime */
     protected $executionTime = 9990.00;
     /** @var string $testStatus */
@@ -30,31 +27,6 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     /**
      * {@inheritdoc}
      */
-//    protected function printDefects(array $defects, $type)
-//    {
-//        $count = count($defects);
-//        if ($count == 0) {
-//            return;
-//        }
-//        $i = 1;
-//        foreach ($defects as $defect) {
-//            $this->printDefect($defect, $i++);
-//        }
-//    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function startTest(\PHPUnit_Framework_Test $test)
-    {
-        $this->className = get_class($test);
-
-        parent::startTest($test);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {
         $this->executionTime = $time;
@@ -62,21 +34,6 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
         parent::endTest($test, $time);
 
         $this->printProgress();
-    }
-
-    /**
-     *
-     */
-    protected function getTestHeader()
-    {
-        $output = "";
-        if ($this->previousClassName !== $this->className) {
-            $output .= "\n";
-            $output .= "\033[01;36m" . $this->className . "\033[0m" . ":\n";
-            $this->previousClassName = $this->className;
-        }
-
-        return $output;
     }
 
     /**
@@ -112,11 +69,20 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     }
 
     /**
+     * @param PHPUnit_Framework_TestSuite $suite
+     */
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        print "\n\033[01;36m" . $suite->getName() . "\033[0m" . ":\n";
+
+        parent::startTestSuite($suite);
+    }
+
+    /**
      * @param string $progress
      */
     protected function writeProgress($progress)
     {
-        print $this->getTestHeader();
         $this->testStatus = $this->getStatusText($progress);
     }
 
