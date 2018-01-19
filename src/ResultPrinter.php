@@ -37,6 +37,37 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     }
 
     /**
+     *
+     */
+    protected function printProgress()
+    {
+        printf(
+            "  %5d %s (%.3fs)\n",
+            0,
+            $this->testStatus,
+            $this->executionTime
+        );
+    }
+
+    /**
+     * @param PHPUnit_Framework_TestSuite $suite
+     */
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        print "\n\033[01;36m" . $suite->getName() . "\033[0m" . ":\n";
+
+        parent::startTestSuite($suite);
+    }
+
+    /**
+     * @param string $progress
+     */
+    protected function writeProgress($progress)
+    {
+        $this->testStatus = $this->getStatusText($progress);
+    }
+
+    /**
      * @param string $progress
      * @return string
      */
@@ -66,36 +97,5 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
         }
 
         return $status;
-    }
-
-    /**
-     * @param PHPUnit_Framework_TestSuite $suite
-     */
-    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
-    {
-        print "\n\033[01;36m" . $suite->getName() . "\033[0m" . ":\n";
-
-        parent::startTestSuite($suite);
-    }
-
-    /**
-     * @param string $progress
-     */
-    protected function writeProgress($progress)
-    {
-        $this->testStatus = $this->getStatusText($progress);
-    }
-
-    /**
-     *
-     */
-    protected function printProgress()
-    {
-        printf(
-            "  %5d %s (%.3fs)\n",
-            0,
-            $this->testStatus,
-            $this->executionTime
-        );
     }
 }
