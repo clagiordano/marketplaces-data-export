@@ -15,6 +15,8 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     protected $executionTime = 9990.00;
     /** @var string $testStatus */
     protected $testStatus = null;
+    /** @var string $testName */
+    protected $testName = null;
 
     /**
      * @param \PHPUnit_Framework_TestResult $result
@@ -33,7 +35,53 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
 
         parent::endTest($test, $time);
 
+        $this->formatTestName($test);
         $this->printProgress();
+    }
+
+    /**
+     * @param PHPUnit_Framework_Test $test
+     */
+    protected function formatTestName(PHPUnit_Framework_Test $test)
+    {
+        $buffer = '';
+        $this->testName = $test->getName();
+
+        if (substr($this->testName, 0, 4) == 'test') {
+            $this->testName = substr($this->testName, 4);
+        }
+
+        $this->testName[0] = strtoupper($this->testName[0]);
+
+        if (strpos($this->testName, '_') !== false) {
+            $this->testName = trim(str_replace('_', ' ', $this->testName));
+        }
+
+        $max        = strlen($this->testName);
+        $wasNumeric = false;
+
+        for ($i = 0; $i < $max; $i++) {
+            if ($i > 0 &&
+                ord($this->testName[$i]) >= 65 &&
+                ord($this->testName[$i]) <= 90) {
+                $buffer .= ' ' . strtolower($this->testName[$i]);
+            } else {
+                $isNumeric = is_numeric($this->testName[$i]);
+
+                if (!$wasNumeric && $isNumeric) {
+                    $buffer    .= ' ';
+                    $wasNumeric = true;
+                }
+
+                if ($wasNumeric && !$isNumeric) {
+                    $wasNumeric = false;
+                }
+
+                $buffer .= $this->testName[$i];
+            }
+        }
+
+        $this->testName = $buffer;
     }
 
     /**
@@ -42,9 +90,9 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     protected function printProgress()
     {
         printf(
-            "  %5d %s (%.3fs)\n",
-            0,
+            "  %s %-50s (%.3fs)\n",
             $this->testStatus,
+            $this->testName,
             $this->executionTime
         );
     }
