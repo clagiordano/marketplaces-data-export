@@ -10,6 +10,7 @@
          stopOnFailure="false"
          syntaxCheck="false"
          verbose="true"
+         printerClass="clagiordano\MarketplacesDataExport\ResultPrinter"
         >
     <testsuites>
         <testsuite name="Package Test Suite">
