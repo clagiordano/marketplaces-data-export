@@ -29,6 +29,11 @@ class Allegro extends AbstractAdapter
         $this->resourceLink = $resourceLink;
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
         if (isset($arguments[0])) $arguments = (array)$arguments[0];
@@ -40,7 +45,7 @@ class Allegro extends AbstractAdapter
         $arguments['webapiKey'] = $this->adapterConfig->apiKey;
 //        $arguments['countryId'] = $this->countryId;
         $arguments['countryCode'] = $this->adapterConfig->countryCode;
-        return $this->client->$name($arguments);
+        return $this->soapClient->$name($arguments);
     }
 
     /**
