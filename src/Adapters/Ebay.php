@@ -544,6 +544,7 @@ class Ebay extends AbstractAdapter
         $product->vendorProductId = $item->SKU;
         $product->availableAmount = $item->QuantityAvailable;
         $product->storedAmount = $item->Quantity;
+        $product->country = $item->Country;
 
         return $product;
     }
@@ -602,5 +603,69 @@ class Ebay extends AbstractAdapter
         }
 
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSellerList()
+    {
+        $request = new Types\GetSellerListRequestType();
+
+        $request->GranularityLevel = Enums\GranularityLevelCodeType::C_COARSE;
+        $request->Pagination = new Types\PaginationType();
+        $request->Pagination->EntriesPerPage = 25;
+
+        $request->StartTimeFrom = (new DateTime(date('Y-m-d', strtotime('-120 days'))));
+        $request->StartTimeTo = (new DateTime());
+        $request->IncludeVariations = true;
+        $request->IncludeWatchCount = true;
+        $request->AdminEndedItemsOnly = false;
+
+        $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
+        $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
+
+        $products = [];
+        $pageNum = 1;
+        do {
+            $request->Pagination->PageNumber = $pageNum;
+
+            /** @var Types\GetSellerListResponseType $response */
+            $response = $this->getTradingService()->getSellerList($request);
+
+            if ($response->Ack !== 'Failure' && isset($response->ItemArray)) {
+                if (isset($response->ItemArray->Item)) {
+                    foreach ($response->ItemArray->Item as $item) {
+                        $product = $this->itemToProduct($item);
+
+                        if (isset($item->Variations)
+                            && isset($item->Variations->Variation)
+                            && count($item->Variations->Variation) > 1) {
+                            /**
+                             * Cycle variations to update and append variation as product
+                             */
+                            foreach ($item->Variations->Variation as $variation) {
+                                $product = clone $product;
+
+                                $product->vendorProductId = $variation->SKU;
+                                $product->description = $variation->VariationTitle;
+                                $product->storedAmount = $variation->Quantity;
+                                $product->isVariation = true;
+
+                                $products[] = $product;
+                            }
+                        } else {
+                            /**
+                             * Product without variations
+                             */
+                            $products[] = $product;
+                        }
+                    }
+                }
+            }
+            $pageNum += 1;
+        } while (isset($response->ItemArray) && $pageNum <= $response->PaginationResult->TotalNumberOfPages);
+
+        return $products;
     }
 }
