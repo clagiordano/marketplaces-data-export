@@ -1,6 +1,6 @@
 <?php
 
-namespace clagiordano\MarketplacesDataExport\Tests;
+namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
@@ -16,7 +16,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $configFile = __DIR__ . '/../testdata/allegro.php';
+        $configFile = __DIR__ . '/../../testdata/allegro.php';
         $this->assertFileExists($configFile);
 
         $config = new Config($configFile);

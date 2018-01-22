@@ -2,7 +2,6 @@
 
 namespace clagiordano\MarketplacesDataExport\Tests;
 
-use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
 
 /**
