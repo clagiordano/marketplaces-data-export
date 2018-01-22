@@ -22,7 +22,7 @@ class EbayTest extends \PHPUnit_Framework_TestCase
         $config = new Config($configFile);
         $this->assertInstanceOf('clagiordano\MarketplacesDataExport\Config', $config);
 
-        $this->class = new Ebay($config, true);
+        $this->class = new Ebay($config, false);
         $this->assertInstanceOf('clagiordano\MarketplacesDataExport\Adapters\Ebay', $this->class);
     }
 
@@ -33,5 +33,14 @@ class EbayTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertNotNull($this->class->getAppToken());
         $this->assertInternalType('string', $this->class->getAppToken());
+    }
+
+    /**
+     * @test
+     */
+    public function canGetgetSoldListings()
+    {
+        $response = $this->class->getSoldListings(new \DateTime(), new \DateTime());
+//        var_dump(count($response));
     }
 }

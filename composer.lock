@@ -422,16 +422,16 @@
     "packages-dev": [
         {
             "name": "clagiordano/phpunit-result-printer",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/clagiordano/phpunit-result-printer.git",
-                "reference": "466221123510b2113b11f467b34096a2ff78eeb9"
+                "reference": "3af7f2996f4fe9e1b8c6113d8abe8428f1cf9d65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clagiordano/phpunit-result-printer/zipball/466221123510b2113b11f467b34096a2ff78eeb9",
-                "reference": "466221123510b2113b11f467b34096a2ff78eeb9",
+                "url": "https://api.github.com/repos/clagiordano/phpunit-result-printer/zipball/3af7f2996f4fe9e1b8c6113d8abe8428f1cf9d65",
+                "reference": "3af7f2996f4fe9e1b8c6113d8abe8428f1cf9d65",
                 "shasum": ""
             },
             "require": {
@@ -448,7 +448,7 @@
                 "MIT"
             ],
             "description": "Phpunit custom result printer class",
-            "time": "2018-01-22T15:12:39+00:00"
+            "time": "2018-01-22T15:35:14+00:00"
         },
         {
             "name": "doctrine/instantiator",

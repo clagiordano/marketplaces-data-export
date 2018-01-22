@@ -119,6 +119,7 @@ class Ebay extends AbstractAdapter
 
     /**
      * Returns simple solds list
+     * @deprecated
      *
      * @return array|bool
      */
