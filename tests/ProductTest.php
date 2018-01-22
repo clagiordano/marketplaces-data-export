@@ -5,7 +5,7 @@ namespace clagiordano\MarketplacesDataExport\Tests;
 use clagiordano\MarketplacesDataExport\Product;
 
 /**
- * Class productTest
+ * Class ProductTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
 class ProductTest extends \PHPUnit_Framework_TestCase

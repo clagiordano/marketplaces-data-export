@@ -5,7 +5,7 @@ namespace clagiordano\MarketplacesDataExport\Tests;
 use clagiordano\MarketplacesDataExport\Shipping;
 
 /**
- * Class shippingTest
+ * Class ShippingTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
 class ShippingTest extends \PHPUnit_Framework_TestCase
