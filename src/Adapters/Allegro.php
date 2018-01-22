@@ -28,6 +28,12 @@ class Allegro extends AbstractAdapter
         parent::__construct($config, $sandboxMode);
     }
 
+    /**
+     * Store and returns access token data information, cache and validate token validity,
+     * require a new token if invalid or expired
+     *
+     * @return string
+     */
     public function getAppToken()
     {
 
