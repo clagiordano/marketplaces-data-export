@@ -11,8 +11,8 @@ use PHPUnit_Framework_TestSuite;
  */
 class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
 {
-    /** @var float $executionTime */
-    protected $executionTime = 9990.00;
+    /** @var double $executionTime */
+    protected $executionTime = 0.00;
     /** @var string $testStatus */
     protected $testStatus = null;
     /** @var string $testName */
@@ -31,10 +31,9 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
      */
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {
-        $this->executionTime = $time;
-
         parent::endTest($test, $time);
 
+        $this->executionTime = $time;
         $this->formatTestName($test);
         $this->printProgress();
     }
@@ -57,7 +56,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
             $this->testName = trim(str_replace('_', ' ', $this->testName));
         }
 
-        $max        = strlen($this->testName);
+        $max = strlen($this->testName);
         $wasNumeric = false;
 
         for ($i = 0; $i < $max; $i++) {
@@ -90,7 +89,9 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     protected function printProgress()
     {
         printf(
-            "  %s %-50s (%.3fs)\n",
+            "  (%3d / %3d) %s %-50s (%.3fs)\n",
+            0,
+            0,
             $this->testStatus,
             $this->testName,
             $this->executionTime
