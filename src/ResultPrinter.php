@@ -17,6 +17,10 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     protected $testStatus = null;
     /** @var string $testName */
     protected $testName = null;
+    /** @var int $suiteTestCurrent */
+    protected $suiteTestCurrent = 0;
+    /** @var int $suiteTestTotal */
+    protected $suiteTestTotal = 0;
 
     /**
      * @param \PHPUnit_Framework_TestResult $result
@@ -35,7 +39,10 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
 
         $this->executionTime = $time;
         $this->formatTestName($test);
+
         $this->printProgress();
+
+        $this->suiteTestCurrent++;
     }
 
     /**
@@ -90,8 +97,8 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     {
         printf(
             "  (%3d / %3d) %s %-50s (%.3fs)\n",
-            0,
-            0,
+            $this->suiteTestCurrent,
+            $this->suiteTestTotal,
             $this->testStatus,
             $this->testName,
             $this->executionTime
@@ -104,6 +111,8 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
         print "\n\033[01;36m" . $suite->getName() . "\033[0m" . ":\n";
+        $this->suiteTestTotal = $suite->count();
+        $this->suiteTestCurrent = 1;
 
         parent::startTestSuite($suite);
     }
