@@ -25,8 +25,22 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testTest()
+    public function canGetCredentialsFromConfig()
     {
-        $this->assertFalse(true);
+        $section = "production";
+        $this->assertNotNull(
+            $this->class->getValue("{$section}.credentials")
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function canGetAuthTokenFromConfig()
+    {
+        $section = "production";
+        $this->assertNotNull(
+            $this->class->getValue("{$section}.authToken")
+        );
     }
 }
