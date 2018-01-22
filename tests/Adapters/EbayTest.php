@@ -38,9 +38,34 @@ class EbayTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function canGetgetSoldListings()
+    public function canGetSoldListings()
     {
         $response = $this->class->getSoldListings(new \DateTime(), new \DateTime());
+//        var_dump(count($response));
+    }
+
+    /**
+     * @test
+     */
+    public function canGetSellingList()
+    {
+//        $response = $this->class->getSellingList();
+//        var_dump(count($response));
+    }
+
+    /**
+     * @test
+     */
+    public function canGetSellerList()
+    {
+        $products = $this->class->getSellerList();
+
+        $groups = [];
+        foreach ($products as $product) {
+            $groups[$product->country][] = $product;
+        }
+
+        var_dump(count($groups));
 //        var_dump(count($response));
     }
 }
