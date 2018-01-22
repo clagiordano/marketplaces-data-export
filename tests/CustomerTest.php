@@ -74,4 +74,32 @@ class CustomerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertObjectHasAttribute('postalCode', $this->class);
     }
+
+    /**
+     * @test
+     */
+    public function customerCanMagicSetProperty()
+    {
+        $property = "testProperty";
+        $value = "test value";
+
+        $this->assertObjectNotHasAttribute($property, $this->class);
+
+        $this->class->{$property} = $value;
+
+        $this->assertObjectHasAttribute($property, $this->class);
+    }
+
+    /**
+     * @test
+     */
+    public function customerCanMagicGetProperty()
+    {
+        $property = "testProperty";
+        $value = "test value";
+
+        $this->class->{$property} = $value;
+
+        $this->assertEquals($value, $this->class->{$property});
+    }
 }
