@@ -15,14 +15,18 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $adapterConfig = null;
     /** @var \nusoap_client $soapClient */
     protected $soapClient = null;
+    /** @var bool $isSandboxMode */
+    protected $isSandboxMode = true;
 
     /**
      * AbstractAdapter constructor.
      * @param Config $config
+     * @param bool $sandboxMode
      */
-    public function __construct(Config $config)
+    public function __construct(Config $config, $sandboxMode = true)
     {
         $this->adapterConfig = $config;
+        $this->isSandboxMode = $sandboxMode;
     }
 
     /**

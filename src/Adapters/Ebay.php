@@ -24,8 +24,6 @@ class Ebay extends AbstractAdapter
     protected $service = null;
     /** @var array $serviceConfig */
     protected $serviceConfig = [];
-    /** @var bool $isSandboxMode */
-    protected $isSandboxMode = true;
     /** @var string $appToken */
     protected $appToken = null;
     /** @var int $appTokenExpireAt */
@@ -42,9 +40,7 @@ class Ebay extends AbstractAdapter
      */
     public function __construct(Config $config, $sandboxMode = true)
     {
-        parent::__construct($config);
-
-        $this->isSandboxMode = $sandboxMode;
+        parent::__construct($config, $sandboxMode);
 
         $section = 'sandbox';
         if (!$this->isSandboxMode) {

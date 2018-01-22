@@ -19,14 +19,34 @@ class Allegro extends AbstractAdapter
 
     /**
      * Allegro constructor.
+     *
      * @param Config $config
-     * @param string $resourceLink resource api link
+     * @param boolean $sandboxMode resource api link
      */
-    public function __construct(Config $config, $resourceLink)
+    public function __construct(Config $config, $sandboxMode = true)
     {
-        parent::__construct($config);
+        parent::__construct($config, $sandboxMode);
+    }
 
+    public function getAppToken()
+    {
+
+    }
+
+    /**
+     * @param string $resourceLink
+     */
+    public function setResourceLink($resourceLink)
+    {
         $this->resourceLink = $resourceLink;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResourceLink()
+    {
+        return $this->resourceLink;
     }
 
     /**
