@@ -19,16 +19,47 @@ class Allegro extends AbstractAdapter
 
     /**
      * Allegro constructor.
+     *
      * @param Config $config
-     * @param string $resourceLink resource api link
+     * @param boolean $sandboxMode resource api link
      */
-    public function __construct(Config $config, $resourceLink)
+    public function __construct(Config $config, $sandboxMode = true)
     {
-        parent::__construct($config);
+        parent::__construct($config, $sandboxMode);
+    }
 
+    /**
+     * Store and returns access token data information, cache and validate token validity,
+     * require a new token if invalid or expired
+     *
+     * @return string
+     */
+    public function getAppToken()
+    {
+
+    }
+
+    /**
+     * @param string $resourceLink
+     */
+    public function setResourceLink($resourceLink)
+    {
         $this->resourceLink = $resourceLink;
     }
 
+    /**
+     * @return string
+     */
+    public function getResourceLink()
+    {
+        return $this->resourceLink;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
         if (isset($arguments[0])) $arguments = (array)$arguments[0];
@@ -40,7 +71,7 @@ class Allegro extends AbstractAdapter
         $arguments['webapiKey'] = $this->adapterConfig->apiKey;
 //        $arguments['countryId'] = $this->countryId;
         $arguments['countryCode'] = $this->adapterConfig->countryCode;
-        return $this->client->$name($arguments);
+        return $this->soapClient->$name($arguments);
     }
 
     /**

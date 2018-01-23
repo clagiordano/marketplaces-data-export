@@ -10,9 +10,10 @@
          stopOnFailure="false"
          syntaxCheck="false"
          verbose="true"
+         printerClass="clagiordano\PhpunitResultPrinter\ResultPrinter"
         >
     <testsuites>
-        <testsuite name="Package Test Suite">
+        <testsuite name="Marketplaces data export">
             <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>
