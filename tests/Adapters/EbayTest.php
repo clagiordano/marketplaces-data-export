@@ -40,11 +40,11 @@ class EbayTest extends \PHPUnit_Framework_TestCase
      */
     public function canGetSellingTransactions()
     {
-        $response = $this->class->getSellingTransactions(
-            new \DateTime(date("Y-m-d", strtotime('-1 days'))),
+        $transactions = $this->class->getSellingTransactions(
+            new \DateTime(date("Y-m-d", strtotime('-5 days'))),
             new \DateTime(date("Y-m-d"))
         );
-        $this->assertInternalType('array', $response);
+        $this->assertInternalType('array', $transactions);
     }
 
     /**

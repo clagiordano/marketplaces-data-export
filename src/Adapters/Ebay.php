@@ -199,6 +199,7 @@ class Ebay extends AbstractAdapter
         $transactionsList = [];
 
         $request = new Types\GetSellingManagerSoldListingsRequestType();
+//        $request->DetailLevel
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
@@ -224,7 +225,6 @@ class Ebay extends AbstractAdapter
                         $trData->paidTime = $record->OrderStatus->PaidTime->format('Y-m-d H:i:s');
                     }
 
-                    $trData->purchasePrice = $record->OrderStatus->PaidStatus;
                     $trData->paymentStatus = $record->OrderStatus->PaidStatus;
                     $trData->paymentMethod = $record->OrderStatus->PaymentMethodUsed;
 
@@ -238,9 +238,19 @@ class Ebay extends AbstractAdapter
                     $trData->customerData->userId = $record->BuyerID;
                     $trData->customerData->customerMail = $record->BuyerEmail;
 
-                    $trData->totalPrice = $record->TotalAmount->value;
-                    $trData->currency = $record->TotalAmount->currencyID;
-                    $trData->purchasePrice = $record->SalePrice->value;
+                    if (count($record->SellingManagerSoldTransaction) > 1) {
+                        /** @var Types\GetOrdersResponseType $order */
+                        $order = $this->getOrders($transaction->OrderLineItemID);
+
+                        $trData->currency = $order->OrderArray->Order[0]->Subtotal->currencyID;
+                        $trData->purchasePrice = $order->OrderArray->Order[0]->Subtotal->value;
+                        $trData->totalPrice = ($trData->purchasePrice * $trData->quantityPurchased);
+                    } else {
+                        $trData->currency = $record->TotalAmount->currencyID;
+                        $trData->purchasePrice = $record->SalePrice->value;
+                        $trData->totalPrice = $record->TotalAmount->value;
+                    }
+
 
                     $trData->shippingData->status = $record->OrderStatus->ShippedStatus;
                     $trData->shippingData->cost = $record->ActualShippingCost->value;
