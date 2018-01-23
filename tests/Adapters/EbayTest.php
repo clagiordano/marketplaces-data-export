@@ -38,10 +38,15 @@ class EbayTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function canGetSoldListings()
+    public function canGetSellingTransactions()
     {
-        $response = $this->class->getSoldListings(new \DateTime(), new \DateTime());
-//        var_dump(count($response));
+        var_dump(date('Y-m-d H:i:s', strtotime('-1 week')));
+        $response = $this->class->getSellingTransactions(
+            new \DateTime(),
+            new \DateTime()
+        );
+        var_dump($response);
+//        $this->assertInternalType('array', $response);
     }
 
     /**
