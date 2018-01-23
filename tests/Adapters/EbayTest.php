@@ -65,7 +65,7 @@ class EbayTest extends \PHPUnit_Framework_TestCase
             $groups[$product->country][] = $product;
         }
 
-        var_dump(count($groups));
+//        var_dump(count($groups));
 //        var_dump(count($response));
     }
 }
