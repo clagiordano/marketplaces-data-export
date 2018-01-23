@@ -40,13 +40,11 @@ class EbayTest extends \PHPUnit_Framework_TestCase
      */
     public function canGetSellingTransactions()
     {
-        var_dump(date('Y-m-d H:i:s', strtotime('-1 week')));
         $response = $this->class->getSellingTransactions(
-            new \DateTime(),
-            new \DateTime()
+            new \DateTime(date("Y-m-d", strtotime('-1 days'))),
+            new \DateTime(date("Y-m-d"))
         );
-        var_dump($response);
-//        $this->assertInternalType('array', $response);
+        $this->assertInternalType('array', $response);
     }
 
     /**
@@ -63,6 +61,7 @@ class EbayTest extends \PHPUnit_Framework_TestCase
      */
     public function canGetSellerList()
     {
+        $this->markTestSkipped();
         $products = $this->class->getSellerList();
 
         $groups = [];

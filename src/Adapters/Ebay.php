@@ -212,7 +212,7 @@ class Ebay extends AbstractAdapter
         $response = $this->getTradingService()->getSellingManagerSoldListings($request);
 
         if (isset($response->Errors)) {
-            return false;
+            throw new \RuntimeException($response->Errors[0]->ShortMessage);
         }
 
         if ($response->Ack !== 'Failure' && isset($response->SaleRecord)) {
