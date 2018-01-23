@@ -3,6 +3,7 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use DateTime;
 
 /**
  * Class Allegro
@@ -29,14 +30,19 @@ class Allegro extends AbstractAdapter
     }
 
     /**
-     * Store and returns access token data information, cache and validate token validity,
-     * require a new token if invalid or expired
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getAppToken()
     {
+        // TODO: Implement getAppToken() method.
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function getSellingTransactions($intervalStart = null, $intervalEnd = null)
+    {
+        // TODO: Implement getSellingTransactions() method.
     }
 
     /**

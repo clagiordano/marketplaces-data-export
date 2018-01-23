@@ -3,6 +3,7 @@
 namespace clagiordano\MarketplacesDataExport\Interfaces;
 
 use clagiordano\MarketplacesDataExport\Config;
+use DateTime;
 
 /**
  * Interface ExportInterface
@@ -25,4 +26,14 @@ interface AdapterInterface
      * @return string
      */
     public function getAppToken();
+
+    /**
+     * Returns a list of selling transactions between datetime interval range,
+     * if no interval is provided, returns all possible transactions.
+     *
+     * @param null|DateTime $intervalStart
+     * @param null|DateTime $intervalEnd
+     * @return array|bool
+     */
+    public function getSellingTransactions($intervalStart = null, $intervalEnd = null);
 }

@@ -192,13 +192,9 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Returns simple solds list
-     *
-     * @param null|DateTime $intervalStart
-     * @param null|DateTime $intervalEnd
-     * @return array|bool
+     * @inheritDoc
      */
-    public function getSoldListings($intervalStart = null, $intervalEnd = null)
+    public function getSellingTransactions($intervalStart = null, $intervalEnd = null)
     {
         $transactionsList = [];
 
@@ -261,6 +257,21 @@ class Ebay extends AbstractAdapter
         ksort($transactionsList);
 
         return $transactionsList;
+    }
+
+    /**
+     * Returns a list of selling transactions between datetime interval range,
+     * if no interval is provided, returns all possible transactions.
+     *
+     * @deprecated legacy deprecated method, use getSellingTransactions instead
+     *
+     * @param null|DateTime $intervalStart
+     * @param null|DateTime $intervalEnd
+     * @return array|bool
+     */
+    public function getSoldListings($intervalStart = null, $intervalEnd = null)
+    {
+        return $this->getSellingTransactions($intervalStart, $intervalEnd);
     }
 
     /**
