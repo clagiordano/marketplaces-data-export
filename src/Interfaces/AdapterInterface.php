@@ -33,7 +33,8 @@ interface AdapterInterface
      *
      * @param null|DateTime $intervalStart
      * @param null|DateTime $intervalEnd
-     * @return array|bool
+     * @return array
+     * @throws \RuntimeException on request failure
      */
     public function getSellingTransactions($intervalStart = null, $intervalEnd = null);
 }
