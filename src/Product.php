@@ -23,22 +23,23 @@ class Product
 
     /**
      * @param string $name
+     * @return mixed
      */
-    function __get($name)
+    public function __get($name)
     {
         if (isset($this->{$name})) {
             return $this->{$name};
         }
+
+        return null;
     }
 
     /**
      * @param string $name
      * @param mixed $value
      */
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         $this->{$name} = $value;
     }
-
-
 }

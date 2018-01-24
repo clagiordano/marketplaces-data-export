@@ -1,6 +1,6 @@
 <?php
 
-namespace clagiordano\MarketplacesDataExport\Tests;
+namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
@@ -16,7 +16,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $configFile = __DIR__ . '/../testdata/allegro.php';
+        $configFile = __DIR__ . '/../../testdata/allegro.php';
         $this->assertFileExists($configFile);
 
         $config = new Config($configFile);
@@ -35,6 +35,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetApiInfo()
     {
+        $this->markTestIncomplete();
         $this->assertInternalType('array', $this->adapter->getApiInfo());
         $this->assertNotNull($this->adapter->getApiInfo()['verKey']);
     }
@@ -45,6 +46,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testDoLogin()
     {
+        $this->markTestIncomplete();
         $this->adapter->doLogin();
     }
 
@@ -54,6 +56,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMySells()
     {
+        $this->markTestIncomplete();
         $sells = $this->adapter->getMySellItems();
         $this->assertInternalType('array', $sells);
     }
@@ -64,6 +67,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMySolds()
     {
+        $this->markTestIncomplete();
         $sells = $this->adapter->getMySoldItems();
         $this->assertInternalType('array', $sells);
 
@@ -80,6 +84,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetUserInfoByUserId()
     {
+        $this->markTestIncomplete();
         $info = $this->adapter->getUserInfo(336686);
         $this->assertInternalType('array', $info);
     }
@@ -90,6 +95,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDeals()
     {
+        $this->markTestIncomplete();
         $sells = $this->adapter->getMySoldItems();
 
         foreach ($sells['soldItemsList'] as $item) {
@@ -121,6 +127,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetJournalDeals()
     {
+        $this->markTestIncomplete();
         $response = $this->adapter->getJournalDeals();
         $this->assertInternalType('array', $response);
 
@@ -135,6 +142,7 @@ class AllegroTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetTransactionsData()
     {
+        $this->markTestIncomplete();
         $transactionIds = [];
         $response = $this->adapter->getJournalDeals();
         print_r($response);
