@@ -22,12 +22,6 @@ class Ebay extends AbstractAdapter
     const MAX_REVISE_AT_TIME = 4;
 
     protected $service = null;
-    /** @var array $serviceConfig */
-    protected $serviceConfig = [];
-    /** @var string $appToken */
-    protected $appToken = null;
-    /** @var int $appTokenExpireAt */
-    protected $appTokenExpireAt = 0;
     /** @var null|TradingService $tradingService */
     protected $tradingService = null;
     /** @var null|InventoryService $inventoryService */

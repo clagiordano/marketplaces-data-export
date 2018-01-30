@@ -17,6 +17,12 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $soapClient = null;
     /** @var bool $isSandboxMode */
     protected $isSandboxMode = true;
+    /** @var array $serviceConfig */
+    protected $serviceConfig = [];
+    /** @var string $appToken */
+    protected $appToken = null;
+    /** @var int $appTokenExpireAt */
+    protected $appTokenExpireAt = 0;
 
     /**
      * AbstractAdapter constructor.
