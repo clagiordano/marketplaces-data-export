@@ -9,6 +9,7 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
 use MCS\MWSClient;
 
@@ -85,7 +86,22 @@ class AmazonMws extends AbstractAdapter
 
         $transactions = [];
         foreach ($orders as $transaction) {
-            $transactions[] = $this->buildTransaction($transaction);
+            $trData = $this->buildTransaction($transaction);
+
+            $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+            foreach ($items as $item) {
+                $currentTrData = clone $trData;
+
+                $currentTrData->productData = $this->itemToProduct($item);
+
+                $currentTrData->quantityPurchased = $item['QuantityOrdered'];
+                $currentTrData->purchasePrice = $item['ItemPrice']['Amount'];
+                $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'];
+                $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
+                $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
+
+                $transactions[] = $currentTrData;
+            }
         }
 
         return $transactions;
@@ -104,23 +120,82 @@ class AmazonMws extends AbstractAdapter
          */
         $trData->marketTransactionId = $transaction['AmazonOrderId'];
         $trData->saleCounter = $transaction['AmazonOrderId'];
-        $trData->quantityPurchased = $transaction['NumberOfItemsShipped'];
+        $trData->totalPrice = $transaction['OrderTotal']['Amount'];
+        $trData->currency = $transaction['OrderTotal']['CurrencyCode'];
+        $trData->transactionDate = $transaction['PurchaseDate'];
+        $trData->paidTime = $transaction['PurchaseDate'];
+        $trData->paymentMethod = $transaction['PaymentMethod'];
+        $trData->paymentMethod .= " ({$transaction['PaymentMethodDetails']['PaymentMethodDetail']})";
+        $trData->paymentStatus = "";
+        $trData->customerNotes = "";
 
         /**
          * Parse shipping information
          */
-        $trData->shippingData->contact = $transaction['ShippingAddress']['Name'];
-        $trData->customerData->customerName = $transaction['ShippingAddress']['Name'];
-        $trData->shippingData->address = $transaction['ShippingAddress']['AddressLine1'];
-        $trData->shippingData->address .= " " . $transaction['ShippingAddress']['AddressLine2'];
-        $trData->shippingData->cityName = $transaction['ShippingAddress']['City'];
-        $trData->shippingData->stateOrProvince = $transaction['ShippingAddress']['StateOrRegion'];
-        $trData->shippingData->countryCode = $transaction['ShippingAddress']['CountryCode'];
-        $trData->shippingData->phone = $transaction['ShippingAddress']['Phone'];
-        $trData->shippingData->postalCode = $transaction['PostalCode'];
+        if (isset($transaction['ShippingAddress']['Name'])) {
+            $trData->shippingData->contact = $transaction['ShippingAddress']['Name'];
+        }
 
-//        $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+        if (isset($transaction['ShippingAddress']['AddressLine1'])) {
+            $trData->shippingData->address = $transaction['ShippingAddress']['AddressLine1'];
+        }
+
+        if (isset($transaction['ShippingAddress']['AddressLine2'])) {
+            $trData->shippingData->address .= " " . $transaction['ShippingAddress']['AddressLine2'];
+        }
+
+        if (isset($transaction['ShippingAddress']['City'])) {
+            $trData->shippingData->cityName = $transaction['ShippingAddress']['City'];
+        }
+
+        if (isset($transaction['ShippingAddress']['StateOrRegion'])) {
+            $trData->shippingData->stateOrProvince = $transaction['ShippingAddress']['StateOrRegion'];
+        }
+
+        if (isset($transaction['ShippingAddress']['CountryCode'])) {
+            $trData->shippingData->countryCode = $transaction['ShippingAddress']['CountryCode'];
+        }
+
+        if (isset($transaction['ShippingAddress']['Phone'])) {
+            $trData->shippingData->phone = $transaction['ShippingAddress']['Phone'];
+        }
+
+        if (isset($transaction['ShippingAddress']['PostalCode'])) {
+            $trData->shippingData->postalCode = $transaction['ShippingAddress']['PostalCode'];
+        }
+
+        $trData->shippingData->status = $transaction['OrderStatus'];
+
+        /**
+         * Parse customer data
+         */
+        $trData->customerData->customerName = $transaction['ShippingAddress']['Name'];
+        $trData->customerData->customerSurame = "";
+        $trData->customerData->billingAddress = $trData->shippingData->address;
+        $trData->customerData->customerMail = $transaction['BuyerEmail'];
+        $trData->customerData->userId = $transaction['BuyerName'];
+        $trData->customerData->country = $trData->shippingData->countryCode;
+        $trData->customerData->postalCode = $trData->shippingData->postalCode;
 
         return $trData;
+    }
+
+    /**
+     * Returns a Product from an MWS order item
+     *
+     * @param array $item
+     * @return Product;
+     */
+    protected function itemToProduct(array $item)
+    {
+        $product = new Product();
+
+        $product->description = $item['Title'];
+        $product->marketProductId = $item['OrderItemId'];
+        $product->vendorProductId = $item['SellerSKU'];
+        $product->availableAmount = $item['QuantityShipped'];
+        $product->storedAmount = $item['ProductInfo']['NumberOfItems'];
+
+        return $product;
     }
 }

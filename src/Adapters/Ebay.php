@@ -236,7 +236,7 @@ class Ebay extends AbstractAdapter
 
                         $trData->currency = $order->OrderArray->Order[0]->Subtotal->currencyID;
                         $trData->purchasePrice = $order->OrderArray->Order[0]->Subtotal->value;
-                        $trData->totalPrice = ($trData->purchasePrice * $trData->quantityPurchased);
+                        $trData->totalPrice = (float)($trData->purchasePrice * $trData->quantityPurchased);
                     } else {
                         $trData->currency = $record->TotalAmount->currencyID;
                         $trData->purchasePrice = $record->SalePrice->value;
@@ -537,7 +537,7 @@ class Ebay extends AbstractAdapter
 
     /**
      * Returns a Product from an Ebay ItemType
-     * g
+     *
      * @param Types\ItemType $item
      * @return Product;
      */
@@ -550,7 +550,6 @@ class Ebay extends AbstractAdapter
         $product->vendorProductId = $item->SKU;
         $product->availableAmount = $item->QuantityAvailable;
         $product->storedAmount = $item->Quantity;
-        $product->country = $item->Country;
 
         return $product;
     }
