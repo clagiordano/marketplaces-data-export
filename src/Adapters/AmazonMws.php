@@ -92,14 +92,34 @@ class AmazonMws extends AbstractAdapter
     }
 
     /**
-     * @param mixed $transaction
+     * @param array $transaction
      * @return Transaction
      */
-    protected function buildTransaction($transaction)
+    protected function buildTransaction(array $transaction)
     {
         $trData = new Transaction();
 
-//        $orderDetail = $this->service->GetOrder($transaction['AmazonOrderId']);
+        /**
+         * Parse transaction data
+         */
+        $trData->marketTransactionId = $transaction['AmazonOrderId'];
+        $trData->saleCounter = $transaction['AmazonOrderId'];
+        $trData->quantityPurchased = $transaction['NumberOfItemsShipped'];
+
+        /**
+         * Parse shipping information
+         */
+        $trData->shippingData->contact = $transaction['ShippingAddress']['Name'];
+        $trData->customerData->customerName = $transaction['ShippingAddress']['Name'];
+        $trData->shippingData->address = $transaction['ShippingAddress']['AddressLine1'];
+        $trData->shippingData->address .= " " . $transaction['ShippingAddress']['AddressLine2'];
+        $trData->shippingData->cityName = $transaction['ShippingAddress']['City'];
+        $trData->shippingData->stateOrProvince = $transaction['ShippingAddress']['StateOrRegion'];
+        $trData->shippingData->countryCode = $transaction['ShippingAddress']['CountryCode'];
+        $trData->shippingData->phone = $transaction['ShippingAddress']['Phone'];
+        $trData->shippingData->postalCode = $transaction['PostalCode'];
+
+//        $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
 
         return $trData;
     }
