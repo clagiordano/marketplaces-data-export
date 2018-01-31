@@ -9,6 +9,7 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use MCS\MWSClient;
 
 /**
  * Class AmazonMws
@@ -16,10 +17,14 @@ use clagiordano\MarketplacesDataExport\Config;
  */
 class AmazonMws extends AbstractAdapter
 {
+    /** @var MWSClient $service */
+    protected $service = null;
+
     /**
      * Ebay constructor.
      * @param Config $config
      * @param bool $sandboxMode
+     * @throws \Exception
      */
     public function __construct(Config $config, $sandboxMode = true)
     {
@@ -37,6 +42,7 @@ class AmazonMws extends AbstractAdapter
             'Secret_Access_Key' => $this->adapterConfig->getValue("{$section}.Secret_Access_Key"),
             'MWSAuthToken' => $this->adapterConfig->getValue("{$section}.MWSAuthToken"),
         ];
+        $this->service = new MWSClient($this->serviceConfig);
     }
 
     /**
@@ -51,8 +57,10 @@ class AmazonMws extends AbstractAdapter
             return $this->appToken;
         }
 
-        $this->appToken = $this->serviceConfig['MWSAuthToken'];
-        $this->appTokenExpireAt = strtotime("+ 7200 seconds");
+        if ($this->service->validateCredentials()) {
+            $this->appToken = $this->serviceConfig['MWSAuthToken'];
+            $this->appTokenExpireAt = strtotime("+ 7200 seconds");
+        }
 
         return $this->appToken;
     }

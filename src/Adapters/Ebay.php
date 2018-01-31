@@ -21,6 +21,7 @@ class Ebay extends AbstractAdapter
 {
     const MAX_REVISE_AT_TIME = 4;
 
+    /** @var Services\OAuthService|null $service */
     protected $service = null;
     /** @var null|TradingService $tradingService */
     protected $tradingService = null;
