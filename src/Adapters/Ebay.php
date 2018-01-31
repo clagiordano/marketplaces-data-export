@@ -343,10 +343,6 @@ class Ebay extends AbstractAdapter
             $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
         }
 
-        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
-            $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
-        }
-
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2)) {
             $trData->shippingData->phone2 = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2;
         }
