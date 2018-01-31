@@ -9,6 +9,7 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Transaction;
 use MCS\MWSClient;
 
 /**
@@ -70,7 +71,28 @@ class AmazonMws extends AbstractAdapter
      */
     public function getSellingTransactions($intervalStart = null, $intervalEnd = null)
     {
-        // TODO: Implement getSellingTransactions() method.
+        if (!$intervalStart instanceof \DateTime || $intervalStart === null) {
+            $intervalStart = new \DateTime();
+        }
+
+        $orders = $this->service->ListOrders($intervalStart, true);
+
+        $transactions = [];
+        foreach ($orders as $transaction) {
+            $transactions[] = $this->buildTransaction($transaction);
+        }
+
+        return $transactions;
     }
 
+    /**
+     * @param mixed $transaction
+     * @return Transaction
+     */
+    protected function buildTransaction($transaction)
+    {
+        $trData = new Transaction();
+
+        return $trData;
+    }
 }
