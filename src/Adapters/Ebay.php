@@ -55,10 +55,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Store and returns access token data information, cache and validate token validity,
-     * require a new token if invalid or expired
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getAppToken()
     {
