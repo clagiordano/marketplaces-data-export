@@ -75,7 +75,13 @@ class AmazonMws extends AbstractAdapter
             $intervalStart = new \DateTime();
         }
 
-        $orders = $this->service->ListOrders($intervalStart, true);
+        $orders = $this->service->ListOrders(
+            $intervalStart,
+            true,
+            [
+                'Shipped'
+            ]
+        );
 
         $transactions = [];
         foreach ($orders as $transaction) {
@@ -92,6 +98,8 @@ class AmazonMws extends AbstractAdapter
     protected function buildTransaction($transaction)
     {
         $trData = new Transaction();
+
+//        $orderDetail = $this->service->GetOrder($transaction['AmazonOrderId']);
 
         return $trData;
     }
