@@ -110,8 +110,9 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Returns simple solds list
-     * @deprecated
+     * Returns a product array of available marketplace items
+     *
+     * @deprecated Use getSoldListings instead
      *
      * @return array|bool
      */
@@ -448,10 +449,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * @param Transaction $trData
-     * @param null|boolean $shippingStatus
-     * @param null|string $feedbackMessage
-     * @return Types\CompleteSaleResponseType
+     * @inheritdoc
      */
     public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
     {
@@ -474,9 +472,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Returns a product array of available marketplace items
-     *
-     * @return Product[]
+     * @inheritdoc
      */
     public function getSellingList()
     {
@@ -555,10 +551,23 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * @param Product[] $products Supported up to 4 products at time.
-     * @return boolean Operation status;
+     * @param array $products
+     *
+     * @deprecated Use updateSellingProducts instead
+     * @return bool
      */
     public function reviseInventoryStatus(array $products)
+    {
+        return $this->updateSellingProducts($products);
+    }
+
+    /**
+     * Updates stock amount available for one or more products.
+     *
+     * @param Product[] $products Supported up to MAX_REVISE_AT_TIME products at time.
+     * @return boolean Operation status;
+     */
+    public function updateSellingProducts(array $products)
     {
         if (count($products) > self::MAX_REVISE_AT_TIME) {
             throw new \InvalidArgumentException(

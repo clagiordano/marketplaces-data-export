@@ -3,6 +3,8 @@
 namespace clagiordano\MarketplacesDataExport\Interfaces;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Product;
+use clagiordano\MarketplacesDataExport\Transaction;
 use DateTime;
 
 /**
@@ -37,4 +39,29 @@ interface AdapterInterface
      * @throws \RuntimeException on request failure
      */
     public function getSellingTransactions($intervalStart = null, $intervalEnd = null);
+
+    /**
+     * Marks a transaction shipped or not
+     *
+     * @param Transaction $trData
+     * @param null|bool $shippingStatus
+     * @param null|bool $feedbackMessage
+     * @return mixed
+     */
+    public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null);
+
+    /**
+     * Returns a product array of available marketplace items
+     *
+     * @return Product[]
+     */
+    public function getSellingList();
+
+    /**
+     * Updates stock amount available for one or more products.
+     *
+     * @param Product[] $products Supported up to MAX_REVISE_AT_TIME products at time.
+     * @return boolean Operation status;
+     */
+    public function updateSellingProducts(array $products);
 }
