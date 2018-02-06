@@ -21,13 +21,8 @@ class Ebay extends AbstractAdapter
 {
     const MAX_REVISE_AT_TIME = 4;
 
+    /** @var Services\OAuthService|null $service */
     protected $service = null;
-    /** @var array $serviceConfig */
-    protected $serviceConfig = [];
-    /** @var string $appToken */
-    protected $appToken = null;
-    /** @var int $appTokenExpireAt */
-    protected $appTokenExpireAt = 0;
     /** @var null|TradingService $tradingService */
     protected $tradingService = null;
     /** @var null|InventoryService $inventoryService */
@@ -61,10 +56,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Store and returns access token data information, cache and validate token validity,
-     * require a new token if invalid or expired
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getAppToken()
     {
@@ -118,8 +110,9 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Returns simple solds list
-     * @deprecated
+     * Returns a product array of available marketplace items
+     *
+     * @deprecated Use getSoldListings instead
      *
      * @return array|bool
      */
@@ -244,7 +237,7 @@ class Ebay extends AbstractAdapter
 
                         $trData->currency = $order->OrderArray->Order[0]->Subtotal->currencyID;
                         $trData->purchasePrice = $order->OrderArray->Order[0]->Subtotal->value;
-                        $trData->totalPrice = ($trData->purchasePrice * $trData->quantityPurchased);
+                        $trData->totalPrice = (float)($trData->purchasePrice * $trData->quantityPurchased);
                     } else {
                         $trData->currency = $record->TotalAmount->currencyID;
                         $trData->purchasePrice = $record->SalePrice->value;
@@ -349,10 +342,6 @@ class Ebay extends AbstractAdapter
 
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
             $trData->shippingData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
-        }
-
-        if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode)) {
-            $trData->customerData->postalCode = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->PostalCode;
         }
 
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Phone2)) {
@@ -460,10 +449,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * @param Transaction $trData
-     * @param null|boolean $shippingStatus
-     * @param null|string $feedbackMessage
-     * @return Types\CompleteSaleResponseType
+     * @inheritdoc
      */
     public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
     {
@@ -486,9 +472,7 @@ class Ebay extends AbstractAdapter
     }
 
     /**
-     * Returns a product array of available marketplace items
-     *
-     * @return Product[]
+     * @inheritdoc
      */
     public function getSellingList()
     {
@@ -549,7 +533,7 @@ class Ebay extends AbstractAdapter
 
     /**
      * Returns a Product from an Ebay ItemType
-     * g
+     *
      * @param Types\ItemType $item
      * @return Product;
      */
@@ -562,16 +546,28 @@ class Ebay extends AbstractAdapter
         $product->vendorProductId = $item->SKU;
         $product->availableAmount = $item->QuantityAvailable;
         $product->storedAmount = $item->Quantity;
-        $product->country = $item->Country;
 
         return $product;
     }
 
     /**
-     * @param Product[] $products Supported up to 4 products at time.
-     * @return boolean Operation status;
+     * @param array $products
+     *
+     * @deprecated Use updateSellingProducts instead
+     * @return bool
      */
     public function reviseInventoryStatus(array $products)
+    {
+        return $this->updateSellingProducts($products);
+    }
+
+    /**
+     * Updates stock amount available for one or more products.
+     *
+     * @param Product[] $products Supported up to MAX_REVISE_AT_TIME products at time.
+     * @return boolean Operation status;
+     */
+    public function updateSellingProducts(array $products)
     {
         if (count($products) > self::MAX_REVISE_AT_TIME) {
             throw new \InvalidArgumentException(

@@ -3,6 +3,8 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Product;
+use clagiordano\MarketplacesDataExport\Transaction;
 use DateTime;
 
 /**
@@ -353,4 +355,30 @@ class Allegro extends AbstractAdapter
                 ]
             );
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
+    {
+        // TODO: Implement completeSale() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSellingList()
+    {
+        // TODO: Implement getSellingList() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateSellingProducts(array $products)
+    {
+        // TODO: Implement updateSellingProducts() method.
+    }
+
+
 }
