@@ -204,7 +204,28 @@ class AmazonMws extends AbstractAdapter
      */
     public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
     {
-        // TODO: Implement completeSale() method.
+//        $items = $this->service->ListOrderItems($trData->marketTransactionId);
+
+//        $data = [
+//            'OrderFulfillment' => [
+//                'AmazonOrderID' => $trData->marketTransactionId,
+//                'FulfillmentDate' => date('Y-m-d H:i:s'),
+//                'OrderStatus' => $shippingStatus,
+//                'MessageID' => rand(),
+//            ]
+//        ];
+//
+//        $response = $this->service->SubmitFeed(
+//            '_POST_ORDER_FULFILLMENT_DATA_',
+//            $data,
+//            true
+//        );
+//
+//        var_dump($response);
+//        var_dump(simplexml_load_string($response));
+
+//        var_dump($response['FeedSubmissionId']);
+//        var_dump($this->service->GetFeedSubmissionResult($response['FeedSubmissionId']));
     }
 
     /**
@@ -222,6 +243,4 @@ class AmazonMws extends AbstractAdapter
     {
         // TODO: Implement updateSellingProducts() method.
     }
-
-
 }

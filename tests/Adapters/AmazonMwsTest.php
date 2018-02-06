@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\AmazonMws;
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Transaction;
 
 /**
  * Class AmazonMwsTest
@@ -45,6 +46,18 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
             new \DateTime(date("Y-m-d"))
         );
         $this->assertInternalType('array', $transactions);
+    }
+
+    /**
+     * @test
+     * @group complete
+     */
+    public function canCompleteSale()
+    {
+        $transaction = new Transaction();
+        $transaction->marketTransactionId = '408-0027437-7874738';
+
+        $this->class->completeSale($transaction, 'UNSHIPPED');
     }
 
     /**
