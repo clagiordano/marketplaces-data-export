@@ -100,7 +100,7 @@ class AmazonMws extends AbstractAdapter
                 $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
                 $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
 
-                $transactions[] = $currentTrData;
+                $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
             }
         }
 
