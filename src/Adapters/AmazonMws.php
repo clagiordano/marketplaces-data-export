@@ -204,28 +204,59 @@ class AmazonMws extends AbstractAdapter
      */
     public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
     {
-//        $items = $this->service->ListOrderItems($trData->marketTransactionId);
+        $order = $this->service->GetOrder($trData->marketTransactionId);
+        $items = $this->service->ListOrderItems($trData->marketTransactionId);
 
 //        $data = [
-//            'OrderFulfillment' => [
-//                'AmazonOrderID' => $trData->marketTransactionId,
-//                'FulfillmentDate' => date('Y-m-d H:i:s'),
-//                'OrderStatus' => $shippingStatus,
-//                'MessageID' => rand(),
+//            'MessageType' => 'OrderFulfillment',
+//            'Message' => [
+//                [
+//                    'MessageID' => rand(),
+//                    'OperationType' => 'Update',
+//                    'AmazonOrderID' => $trData->marketTransactionId,
+////                    'MerchantOrderID' => $trData->marketTransactionId,
+////                    'StatusCode' => 'Success',
+////                    'AmazonOrderItemCode' => $items[0]['OrderItemId'],
+////                    'MerchantOrderItemID' => $items[0]['OrderItemId'],
+//                    'FulfillmentDate' => date('Y-m-d H:i:s'),
+////                    'FulfillmentData' => [
+////                        'CarrierCode' => 'BRT'
+////                    ],
+//                    'Item' => [
+//                        'AmazonOrderItemCode' => $items[0]['OrderItemId'],
+//                        'Quantity' => 1
+//                    ]
+//                ]
 //            ]
 //        ];
-//
-//        $response = $this->service->SubmitFeed(
-//            '_POST_ORDER_FULFILLMENT_DATA_',
-//            $data,
-//            true
-//        );
-//
-//        var_dump($response);
-//        var_dump(simplexml_load_string($response));
 
+        $feed = [
+            'MessageType' => 'OrderAcknowledgement',
+            'Message' => []
+        ];
+
+        foreach ($items as $item) {
+            $feed['Message'][] = [
+                'MessageID' => rand(),
+                'OperationType' => 'Update',
+                'OrderAcknowledgement' => [
+                    'AmazonOrderID' => $trData->marketTransactionId,
+                    'StatusCode' => 'Success',
+                    'AmazonOrderItemCode' => $item['OrderItemId'],
+                ]
+            ];
+        }
+
+        $response = $this->service->SubmitFeed(
+            '_POST_ORDER_ACKNOWLEDGEMENT_DATA_',
+            $feed
+        );
+
+        print_r($response);
 //        var_dump($response['FeedSubmissionId']);
+//        sleep(10);
 //        var_dump($this->service->GetFeedSubmissionResult($response['FeedSubmissionId']));
+//        var_dump($this->service->GetFeedSubmissionResult('50239017569'));
     }
 
     /**
