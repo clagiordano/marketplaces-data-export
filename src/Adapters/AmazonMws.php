@@ -232,18 +232,19 @@ class AmazonMws extends AbstractAdapter
 
         $feed = [
             'MessageType' => 'OrderAcknowledgement',
-            'Message' => []
-        ];
-
-        foreach ($items as $item) {
-            $feed['Message'][] = [
+            'Message' => [
                 'MessageID' => rand(),
                 'OperationType' => 'Update',
                 'OrderAcknowledgement' => [
                     'AmazonOrderID' => $trData->marketTransactionId,
                     'StatusCode' => 'Success',
-                    'AmazonOrderItemCode' => $item['OrderItemId'],
                 ]
+            ]
+        ];
+
+        foreach ($items as $item) {
+            $feed['Message']['OrderAcknowledgement']['Item'][] = [
+                'AmazonOrderItemCode' => $item['OrderItemId'],
             ];
         }
 
