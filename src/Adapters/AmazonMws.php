@@ -80,7 +80,8 @@ class AmazonMws extends AbstractAdapter
             $intervalStart,
             true,
             [
-                'Shipped'
+                'Unshipped', 
+                'PartiallyShipped'
             ]
         );
 
