@@ -209,9 +209,9 @@ class AmazonMws extends AbstractAdapter
      */
     public function completeSale(
         Transaction $trData,
-        $carrierName = '',
-        $shippingMethod = '',
-        $shippingTracking = ''
+        $carrierName = null,
+        $shippingMethod = null,
+        $shippingTracking = null
     ) {
         $feed = [
             'MessageType' => 'OrderFulfillment',
