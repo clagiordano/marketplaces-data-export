@@ -460,15 +460,17 @@ class Ebay extends AbstractAdapter
         $request->TransactionID = (string)$trData->marketTransactionId;
         $request->ItemID = (string)$trData->productData->marketProductId;
 
-        if (!is_null($shippingStatus)) {
+        if ($shippingStatus !== null) {
             $request->Shipped = $shippingStatus;
         }
 
-        if (!is_null($feedbackMessage)) {
+        if ($feedbackMessage !== null) {
             $request->FeedbackInfo = $feedbackMessage;
         }
 
-        return $this->getTradingService()->completeSale($request);
+        $response = $this->getTradingService()->completeSale($request);
+
+        return ($response->Ack !== 'Failure' ? true : false);
     }
 
     /**
