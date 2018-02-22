@@ -44,11 +44,9 @@ interface AdapterInterface
      * Marks a transaction shipped or not
      *
      * @param Transaction $trData
-     * @param null|bool $shippingStatus
-     * @param null|bool $feedbackMessage
      * @return mixed
      */
-    public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null);
+    public function completeSale(Transaction $trData);
 
     /**
      * Returns a product array of available marketplace items

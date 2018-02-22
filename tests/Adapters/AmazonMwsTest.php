@@ -56,9 +56,12 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
     {
         $transaction = new Transaction();
         $transaction->marketTransactionId = '404-6409497-0982735';
-        $transaction->productData->marketProductId = '';
 
-        $this->class->completeSale($transaction, 'Success');
+        $this->class->completeSale(
+            $transaction,
+            'SampleCarrier',
+            'SampleMethod'
+        );
     }
 
     /**
