@@ -42,7 +42,7 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
     public function canGetSellingTransactions()
     {
         $transactions = $this->class->getSellingTransactions(
-            new \DateTime(date("Y-m-d", strtotime('-5 days'))),
+            new \DateTime(date("Y-m-d", strtotime('-1 days'))),
             new \DateTime(date("Y-m-d"))
         );
         $this->assertInternalType('array', $transactions);
@@ -69,24 +69,18 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
      */
     public function canGetSellingList()
     {
-//        $response = $this->class->getSellingList();
-//        var_dump(count($response));
+        $this->markTestIncomplete();
+        $products = $this->class->getSellingList();
+        var_dump(count($products));
     }
 
     /**
      * @test
      */
-    public function canGetSellerList()
+    public function canUpdateSellingProducts()
     {
-        $this->markTestSkipped();
-        $products = $this->class->getSellerList();
+        $updates = [];
 
-        $groups = [];
-        foreach ($products as $product) {
-            $groups[$product->country][] = $product;
-        }
-
-//        var_dump(count($groups));
-//        var_dump(count($response));
+        $this->class->updateSellingProducts($updates);
     }
 }

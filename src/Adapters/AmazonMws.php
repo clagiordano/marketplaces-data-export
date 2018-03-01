@@ -80,7 +80,7 @@ class AmazonMws extends AbstractAdapter
             $intervalStart,
             true,
             [
-                'Unshipped', 
+                'Unshipped',
                 'PartiallyShipped'
             ]
         );
@@ -212,7 +212,8 @@ class AmazonMws extends AbstractAdapter
         $carrierName = null,
         $shippingMethod = null,
         $shippingTracking = null
-    ) {
+    )
+    {
         $feed = [
             'MessageType' => 'OrderFulfillment',
             'Message' => [
@@ -243,7 +244,11 @@ class AmazonMws extends AbstractAdapter
      */
     public function getSellingList()
     {
-        // TODO: Implement getSellingList() method.
+        $products = [];
+        // TODO: MWS issue
+//        $products = $this->service->ListInventorySupply();
+
+        return $products;
     }
 
     /**
@@ -251,6 +256,10 @@ class AmazonMws extends AbstractAdapter
      */
     public function updateSellingProducts(array $products)
     {
-        // TODO: Implement updateSellingProducts() method.
+        $response = $this->service->updateStock(
+            $products
+        );
+
+        return $response;
     }
 }
