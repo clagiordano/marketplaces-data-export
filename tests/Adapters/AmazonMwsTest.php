@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\AmazonMws;
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
 
 /**
@@ -66,20 +67,26 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @group sellinglist
      */
     public function canGetSellingList()
     {
-        $this->markTestIncomplete();
-        $products = $this->class->getSellingList();
-        var_dump(count($products));
+//        $this->class->test();
+//        $this->markTestIncomplete();
+//        $products = $this->class->getSellingList();
+//        var_dump(count($products));
     }
 
     /**
      * @test
+     * @group update
      */
     public function canUpdateSellingProducts()
     {
-        $updates = [];
+        $prod = new Product();
+        $prod->vendorProductId = 'TEST_SKU';
+        $prod->availableAmount = 5;
+        $updates[] = $prod;
 
         $this->class->updateSellingProducts($updates);
     }

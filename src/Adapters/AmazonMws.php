@@ -256,10 +256,15 @@ class AmazonMws extends AbstractAdapter
      */
     public function updateSellingProducts(array $products)
     {
-        $response = $this->service->updateStock(
-            $products
-        );
+        $updates = [];
 
-        return $response;
+        /** @var Product $product */
+        foreach ($products as $product) {
+            $updates[$product->vendorProductId] = $product->availableAmount;
+        }
+
+        $response = $this->service->updateStock($updates);
+
+        return ($response['FeedProcessingStatus'] === '_SUBMITTED_' ? true : false);
     }
 }
