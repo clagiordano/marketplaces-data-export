@@ -103,6 +103,8 @@ class AmazonMws extends AbstractAdapter
 
                 $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
             }
+
+            sleep(2);
         }
 
         return $transactions;
