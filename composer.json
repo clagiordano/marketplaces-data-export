@@ -33,7 +33,7 @@
     "php": ">=5.6",
     "econea/nusoap": "v0.9.5.1",
     "clagiordano/weblibs-configmanager": "^1.0",
-    "dts/ebay-sdk-php": "^11.0",
+    "dts/ebay-sdk-php": "^18.0",
     "mcs/amazon-mws": "^0.1.25"
   },
   "require-dev": {

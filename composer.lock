@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "81991149636d5d0f12fcbecde3b12808",
+    "content-hash": "6e91578c292a0574161d7ca12845168c",
     "packages": [
         {
             "name": "clagiordano/weblibs-configmanager",
@@ -55,16 +55,16 @@
         },
         {
             "name": "dts/ebay-sdk-php",
-            "version": "11.0.0",
+            "version": "18.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/davidtsadler/ebay-sdk-php.git",
-                "reference": "3f730148d5caa639eb1407c0c4a4c5e356a1b752"
+                "reference": "42714ad203f0d37be53aa11fbe78b3eb6b18d34b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/davidtsadler/ebay-sdk-php/zipball/3f730148d5caa639eb1407c0c4a4c5e356a1b752",
-                "reference": "3f730148d5caa639eb1407c0c4a4c5e356a1b752",
+                "url": "https://api.github.com/repos/davidtsadler/ebay-sdk-php/zipball/42714ad203f0d37be53aa11fbe78b3eb6b18d34b",
+                "reference": "42714ad203f0d37be53aa11fbe78b3eb6b18d34b",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "ebay",
                 "sdk"
             ],
-            "time": "2017-03-20T16:23:39+00:00"
+            "time": "2018-06-28T21:22:49+00:00"
         },
         {
             "name": "econea/nusoap",
