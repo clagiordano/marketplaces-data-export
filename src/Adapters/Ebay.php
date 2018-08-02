@@ -192,7 +192,6 @@ class Ebay extends AbstractAdapter
         $transactionsList = [];
 
         $request = new Types\GetSellingManagerSoldListingsRequestType();
-//        $request->DetailLevel
 
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
@@ -219,7 +218,9 @@ class Ebay extends AbstractAdapter
                     }
 
                     $trData->paymentStatus = $record->OrderStatus->PaidStatus;
+                    $trData->paymentInfo->status = $record->OrderStatus->PaidStatus;
                     $trData->paymentMethod = $record->OrderStatus->PaymentMethodUsed;
+                    $trData->paymentInfo->method = $record->OrderStatus->PaymentMethodUsed;
 
                     if ($record->CreationTime instanceof \DateTime) {
                         $trData->transactionDate = $record->CreationTime->format('Y-m-d H:i:s');
@@ -329,7 +330,8 @@ class Ebay extends AbstractAdapter
         }
 
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince)) {
-            $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder->ShippingAddress->StateOrProvince;
+            $trData->shippingData->stateOrProvince = $saleRecordData->SellingManagerSoldOrder
+                ->ShippingAddress->StateOrProvince;
         }
 
         if (isset($saleRecordData->SellingManagerSoldOrder->ShippingAddress->Country)) {
@@ -380,6 +382,7 @@ class Ebay extends AbstractAdapter
         $request->RequesterCredentials = new Types\CustomSecurityHeaderType();
         $request->RequesterCredentials->eBayAuthToken = $this->getAppToken();
 
+        $request->DetailLevel[] = Enums\DetailLevelCodeType::C_RETURN_ALL;
         $request->OrderIDArray = new Types\OrderIDArrayType();
         $request->OrderIDArray->OrderID[] = $orderListingId;
 
@@ -398,6 +401,7 @@ class Ebay extends AbstractAdapter
     protected function populateShippingData($orderId, Transaction $trData)
     {
         $saleRecordData = $this->getOrders($orderId);
+        $this->populatePaymentExternalInfo($saleRecordData, $trData);
 
         if (!isset($saleRecordData->OrderArray->Order[0])) {
             return $trData;
@@ -526,7 +530,8 @@ class Ebay extends AbstractAdapter
             }
 
             $pageNum += 1;
-        } while (isset($response->ActiveList) && $pageNum <= $response->ActiveList->PaginationResult->TotalNumberOfPages);
+        } while (isset($response->ActiveList)
+            && $pageNum <= $response->ActiveList->PaginationResult->TotalNumberOfPages);
 
         return $products;
     }
@@ -681,5 +686,40 @@ class Ebay extends AbstractAdapter
         } while (isset($response->ItemArray) && $pageNum <= $response->PaginationResult->TotalNumberOfPages);
 
         return $products;
+    }
+
+    /**
+     * Store external payment info if is an external payment into dedicated data structure.
+     *
+     * @param Types\GetOrdersResponseType $orderData
+     * @param Transaction $trData
+     */
+    protected function populatePaymentExternalInfo(Types\GetOrdersResponseType $orderData, Transaction &$trData)
+    {
+        if ($trData->paymentInfo->method === 'PayPal') {
+            $trData->paymentInfo->isExternal = true;
+
+            if (isset($orderData->OrderArray->Order[0])
+                && isset($orderData->OrderArray->Order[0]->ExternalTransaction[0])) {
+                $trData->paymentInfo->externalPaymentId = $orderData->OrderArray
+                    ->Order[0]
+                    ->ExternalTransaction[0]
+                    ->ExternalTransactionID;
+                $trData->paymentInfo->externalPaymentStatus = $orderData->OrderArray
+                    ->Order[0]
+                    ->ExternalTransaction[0]
+                    ->ExternalTransactionStatus;
+                $trData->paymentInfo->externalPaymentFee = $orderData->OrderArray
+                    ->Order[0]
+                    ->ExternalTransaction[0]
+                    ->FeeOrCreditAmount
+                    ->value;
+                $trData->paymentInfo->externalPaymentFeeCurrency = $orderData->OrderArray
+                    ->Order[0]
+                    ->ExternalTransaction[0]
+                    ->FeeOrCreditAmount
+                    ->currencyID;
+            }
+        }
     }
 }
