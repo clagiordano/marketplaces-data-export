@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\Ebay;
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Transaction;
 
 /**
  * Class EbayTest
@@ -45,6 +46,20 @@ class EbayTest extends \PHPUnit_Framework_TestCase
             new \DateTime(date("Y-m-d"))
         );
         $this->assertInternalType('array', $transactions);
+    }
+
+    /**
+     * @test
+     * @group complete
+     */
+    public function canCompleteSale()
+    {
+        $transaction = new Transaction();
+        $transaction->marketTransactionId = 'SAMPLE_TRANSACTION_ID';
+
+        $this->class->completeSale(
+            $transaction
+        );
     }
 
     /**

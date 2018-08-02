@@ -80,7 +80,7 @@ class AmazonMws extends AbstractAdapter
             $intervalStart,
             true,
             [
-                'Unshipped', 
+                'Unshipped',
                 'PartiallyShipped'
             ]
         );
@@ -103,6 +103,8 @@ class AmazonMws extends AbstractAdapter
 
                 $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
             }
+
+            sleep(2);
         }
 
         return $transactions;
@@ -202,63 +204,41 @@ class AmazonMws extends AbstractAdapter
 
     /**
      * @inheritDoc
+     *
+     * @param string $carrierName
+     * @param string $shippingMethod
+     * @param string $shippingTracking
      */
-    public function completeSale(Transaction $trData, $shippingStatus = null, $feedbackMessage = null)
+    public function completeSale(
+        Transaction $trData,
+        $carrierName = null,
+        $shippingMethod = null,
+        $shippingTracking = null
+    )
     {
-        $order = $this->service->GetOrder($trData->marketTransactionId);
-        $items = $this->service->ListOrderItems($trData->marketTransactionId);
-
-//        $data = [
-//            'MessageType' => 'OrderFulfillment',
-//            'Message' => [
-//                [
-//                    'MessageID' => rand(),
-//                    'OperationType' => 'Update',
-//                    'AmazonOrderID' => $trData->marketTransactionId,
-////                    'MerchantOrderID' => $trData->marketTransactionId,
-////                    'StatusCode' => 'Success',
-////                    'AmazonOrderItemCode' => $items[0]['OrderItemId'],
-////                    'MerchantOrderItemID' => $items[0]['OrderItemId'],
-//                    'FulfillmentDate' => date('Y-m-d H:i:s'),
-////                    'FulfillmentData' => [
-////                        'CarrierCode' => 'BRT'
-////                    ],
-//                    'Item' => [
-//                        'AmazonOrderItemCode' => $items[0]['OrderItemId'],
-//                        'Quantity' => 1
-//                    ]
-//                ]
-//            ]
-//        ];
-
         $feed = [
-            'MessageType' => 'OrderAcknowledgement',
+            'MessageType' => 'OrderFulfillment',
             'Message' => [
                 'MessageID' => rand(),
                 'OperationType' => 'Update',
-                'OrderAcknowledgement' => [
+                'OrderFulfillment' => [
                     'AmazonOrderID' => $trData->marketTransactionId,
-                    'StatusCode' => 'Success',
+                    'FulfillmentDate' => gmdate("Y-m-d\TH:i:s.\\0\\0\\0\\Z", time()),
+                    'FulfillmentData' => [
+                        'CarrierName' => $carrierName,
+                        'ShippingMethod' => $shippingMethod,
+                        'ShipperTrackingNumber' => $shippingTracking
+                    ]
                 ]
             ]
         ];
 
-        foreach ($items as $item) {
-            $feed['Message']['OrderAcknowledgement']['Item'][] = [
-                'AmazonOrderItemCode' => $item['OrderItemId'],
-            ];
-        }
-
         $response = $this->service->SubmitFeed(
-            '_POST_ORDER_ACKNOWLEDGEMENT_DATA_',
+            '_POST_ORDER_FULFILLMENT_DATA_',
             $feed
         );
 
-        print_r($response);
-//        var_dump($response['FeedSubmissionId']);
-//        sleep(10);
-//        var_dump($this->service->GetFeedSubmissionResult($response['FeedSubmissionId']));
-//        var_dump($this->service->GetFeedSubmissionResult('50239017569'));
+        return ($response['FeedProcessingStatus'] === '_SUBMITTED_' ? true : false);
     }
 
     /**
@@ -266,7 +246,11 @@ class AmazonMws extends AbstractAdapter
      */
     public function getSellingList()
     {
-        // TODO: Implement getSellingList() method.
+        $products = [];
+        // TODO: MWS issue
+//        $products = $this->service->ListInventorySupply();
+
+        return $products;
     }
 
     /**
@@ -274,6 +258,15 @@ class AmazonMws extends AbstractAdapter
      */
     public function updateSellingProducts(array $products)
     {
-        // TODO: Implement updateSellingProducts() method.
+        $updates = [];
+
+        /** @var Product $product */
+        foreach ($products as $product) {
+            $updates[$product->vendorProductId] = $product->availableAmount;
+        }
+
+        $response = $this->service->updateStock($updates);
+
+        return ($response['FeedProcessingStatus'] === '_SUBMITTED_' ? true : false);
     }
 }

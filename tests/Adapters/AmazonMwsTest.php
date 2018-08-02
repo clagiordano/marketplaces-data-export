@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\AmazonMws;
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
 
 /**
@@ -42,7 +43,7 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
     public function canGetSellingTransactions()
     {
         $transactions = $this->class->getSellingTransactions(
-            new \DateTime(date("Y-m-d", strtotime('-5 days'))),
+            new \DateTime(date("Y-m-d", strtotime('-1 days'))),
             new \DateTime(date("Y-m-d"))
         );
         $this->assertInternalType('array', $transactions);
@@ -55,35 +56,38 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
     public function canCompleteSale()
     {
         $transaction = new Transaction();
-        $transaction->marketTransactionId = '404-6409497-0982735';
-        $transaction->productData->marketProductId = '';
+        $transaction->marketTransactionId = 'SAMPLE_TRANSACTION_ID';
 
-        $this->class->completeSale($transaction, 'Success');
+        $this->class->completeSale(
+            $transaction,
+            'SampleCarrier',
+            'SampleMethod'
+        );
     }
 
     /**
      * @test
+     * @group sellinglist
      */
     public function canGetSellingList()
     {
-//        $response = $this->class->getSellingList();
-//        var_dump(count($response));
+//        $this->class->test();
+//        $this->markTestIncomplete();
+//        $products = $this->class->getSellingList();
+//        var_dump(count($products));
     }
 
     /**
      * @test
+     * @group update
      */
-    public function canGetSellerList()
+    public function canUpdateSellingProducts()
     {
-        $this->markTestSkipped();
-        $products = $this->class->getSellerList();
+        $prod = new Product();
+        $prod->vendorProductId = 'TEST_SKU';
+        $prod->availableAmount = 5;
+        $updates[] = $prod;
 
-        $groups = [];
-        foreach ($products as $product) {
-            $groups[$product->country][] = $product;
-        }
-
-//        var_dump(count($groups));
-//        var_dump(count($response));
+        $this->class->updateSellingProducts($updates);
     }
 }
