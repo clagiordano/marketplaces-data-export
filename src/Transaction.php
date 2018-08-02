@@ -36,6 +36,8 @@ class Transaction
     public $customerNotes = null;
     /** @var string $transactionDate */
     public $transactionDate = null;
+    /** @var PaymentInfo $paymentInfo */
+    public $paymentInfo = null;
 
     /**
      * Transaction constructor.
@@ -45,5 +47,6 @@ class Transaction
         $this->customerData = new Customer();
         $this->productData = new Product();
         $this->shippingData = new Shipping();
+        $this->paymentInfo = new PaymentInfo();
     }
 }
