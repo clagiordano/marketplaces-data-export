@@ -249,9 +249,7 @@ class Ebay extends AbstractAdapter
                     $trData->shippingData->status = $record->OrderStatus->ShippedStatus;
                     $trData->shippingData->cost = $record->ActualShippingCost->value;
 
-                    if (count($response->SaleRecord) > 1 && $trData->shippingData->contact == "") {
-                        $trData = $this->populateShippingData($transaction->OrderLineItemID, $trData);
-                    }
+                    $trData = $this->populateShippingData($transaction->OrderLineItemID, $trData);
 
                     $transactionsList[$record->SaleRecordID][] = $trData;
                 }
@@ -398,7 +396,7 @@ class Ebay extends AbstractAdapter
      * @param Transaction $trData Transaction object.
      * @return Transaction
      */
-    protected function populateShippingData($orderId, Transaction $trData)
+    protected function populateShippingData($orderId, Transaction &$trData)
     {
         $saleRecordData = $this->getOrders($orderId);
         $this->populatePaymentExternalInfo($saleRecordData, $trData);
@@ -448,8 +446,6 @@ class Ebay extends AbstractAdapter
         if (isset($shippingData->Phone2)) {
             $trData->shippingData->phone2 = $shippingData->Phone2;
         }
-
-        return $trData;
     }
 
     /**
