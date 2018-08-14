@@ -396,7 +396,7 @@ class Ebay extends AbstractAdapter
      * @param Transaction $trData Transaction object.
      * @return Transaction
      */
-    protected function populateShippingData($orderId, Transaction &$trData)
+    protected function populateShippingData($orderId, Transaction $trData)
     {
         $saleRecordData = $this->getOrders($orderId);
         $this->populatePaymentExternalInfo($saleRecordData, $trData);
