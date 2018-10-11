@@ -250,7 +250,7 @@ class Ebay extends AbstractAdapter
                     $trData->shippingData->cost = $record->ActualShippingCost->value;
 
                     if (count($response->SaleRecord) > 1 && $trData->shippingData->contact == "") {
-                        $trData = $this->populateShippingData($transaction->OrderLineItemID, $trData);
+                        $this->populateShippingData($transaction->OrderLineItemID, $trData);
                     }
 
                     $transactionsList[$record->SaleRecordID][] = $trData;
