@@ -9,6 +9,7 @@
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\FulfillmentMethods;
 use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
 use MCS\MWSClient;
@@ -168,6 +169,27 @@ class AmazonMws extends AbstractAdapter
         }
 
         $trData->shippingData->status = $transaction['OrderStatus'];
+
+        /**
+         * Fulfillment method selection
+         *
+         * MFN / FBM: Merchant Fulfilled Network / "fulfillment by merchant"
+         * FBA: Fulfillment by Amazon
+         */
+        if (isset($transaction['FulfillmentChannel'])) {
+            switch ($transaction['FulfillmentChannel']) {
+                case 'FBA':
+                    $trData->shippingData->fulfillmentMethod = FulfillmentMethods::MARKETPLACE;
+                    break;
+
+                case 'MFN':
+                case 'FBM':
+                default:
+                    $trData->shippingData->fulfillmentMethod = FulfillmentMethods::SELLER;
+                    break;
+            }
+
+        }
 
         /**
          * Parse customer data
