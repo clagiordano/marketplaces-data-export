@@ -28,4 +28,6 @@ class Shipping
     public $status = null;
     /** @var string|null $cost */
     public $cost = null;
+    /** @var string $fulfillmentMethod */
+    public $fulfillmentMethod = FulfillmentMethods::SELLER;
 }
