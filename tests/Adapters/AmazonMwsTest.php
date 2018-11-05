@@ -4,6 +4,7 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\AmazonMws;
 use clagiordano\MarketplacesDataExport\Config;
+use clagiordano\MarketplacesDataExport\FulfillmentMethods;
 use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
 
@@ -47,6 +48,35 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
             new \DateTime(date("Y-m-d"))
         );
         $this->assertInternalType('array', $transactions);
+    }
+
+    /**
+     * @test
+     * @group fba
+     */
+    public function canGetFBASellingTransactions()
+    {
+        $transactions = $this->class->getSellingTransactions(
+            new \DateTime(date("Y-m-d", strtotime('-1 days'))),
+            new \DateTime(date("Y-m-d")),
+            [
+                'Shipped',
+                'Unshipped',
+                'PartiallyShipped'
+            ],
+            'AFN'
+        );
+        $this->assertInternalType('array', $transactions);
+
+        foreach ($transactions as $order) {
+            /** @var Transaction $transaction */
+            foreach ($order as $transaction) {
+                self::assertEquals(
+                    FulfillmentMethods::MARKETPLACE,
+                    $transaction->shippingData->fulfillmentMethod
+                );
+            }
+        }
     }
 
     /**
