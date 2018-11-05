@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: claudio
- * Date: 30/01/18
- * Time: 15.10
- */
 
 namespace clagiordano\MarketplacesDataExport\Adapters;
 
@@ -71,8 +65,15 @@ class AmazonMws extends AbstractAdapter
     /**
      * @inheritDoc
      */
-    public function getSellingTransactions($intervalStart = null, $intervalEnd = null)
-    {
+    public function getSellingTransactions(
+        $intervalStart = null,
+        $intervalEnd = null,
+        $shipmentStates = [
+            'Unshipped',
+            'PartiallyShipped'
+        ],
+        $fulfillmentChannel = 'MFN'
+    ) {
         if (!$intervalStart instanceof \DateTime || $intervalStart === null) {
             $intervalStart = new \DateTime();
         }
@@ -80,10 +81,8 @@ class AmazonMws extends AbstractAdapter
         $orders = $this->service->ListOrders(
             $intervalStart,
             true,
-            [
-                'Unshipped',
-                'PartiallyShipped'
-            ]
+            $shipmentStates,
+            $fulfillmentChannel
         );
 
         $transactions = [];
@@ -100,7 +99,9 @@ class AmazonMws extends AbstractAdapter
                 $currentTrData->purchasePrice = $item['ItemPrice']['Amount'];
                 $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'];
                 $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
-                $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
+                if (isset($item['ShippingPrice'])) {
+                    $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
+                }
 
                 $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
             }
@@ -178,6 +179,7 @@ class AmazonMws extends AbstractAdapter
          */
         if (isset($transaction['FulfillmentChannel'])) {
             switch ($transaction['FulfillmentChannel']) {
+                case 'AFN':
                 case 'FBA':
                     $trData->shippingData->fulfillmentMethod = FulfillmentMethods::MARKETPLACE;
                     break;
