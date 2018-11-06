@@ -270,11 +270,15 @@ class AmazonMws extends AbstractAdapter
      */
     public function getSellingList()
     {
-        $products = [];
-        // TODO: MWS issue
-//        $products = $this->service->ListInventorySupply();
+        try {
+            $requestId = (int)$this->service->RequestReport(
+                '_GET_MERCHANT_LISTINGS_DATA_BACK_COMPAT_'
+            );
+        } catch (\Exception $exception) {
+            $requestId = 0;
+        }
 
-        return $products;
+        return $requestId;
     }
 
     /**
