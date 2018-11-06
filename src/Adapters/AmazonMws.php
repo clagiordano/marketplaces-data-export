@@ -171,27 +171,7 @@ class AmazonMws extends AbstractAdapter
 
         $trData->shippingData->status = $transaction['OrderStatus'];
 
-        /**
-         * Fulfillment method selection
-         *
-         * MFN / FBM: Merchant Fulfilled Network / "fulfillment by merchant"
-         * FBA: Fulfillment by Amazon
-         */
-        if (isset($transaction['FulfillmentChannel'])) {
-            switch ($transaction['FulfillmentChannel']) {
-                case 'AFN':
-                case 'FBA':
-                    $trData->shippingData->fulfillmentMethod = FulfillmentMethods::MARKETPLACE;
-                    break;
-
-                case 'MFN':
-                case 'FBM':
-                default:
-                    $trData->shippingData->fulfillmentMethod = FulfillmentMethods::SELLER;
-                    break;
-            }
-
-        }
+        $trData->shippingData->fulfillmentMethod = $this->getFulfillmentMethodByCode($transaction['FulfillmentChannel']);
 
         /**
          * Parse customer data
@@ -268,17 +248,40 @@ class AmazonMws extends AbstractAdapter
     /**
      * @inheritDoc
      */
-    public function getSellingList()
+    public function getSellingList($requestId = null)
     {
-        try {
-            $requestId = (int)$this->service->RequestReport(
-                '_GET_MERCHANT_LISTINGS_DATA_BACK_COMPAT_'
-            );
-        } catch (\Exception $exception) {
-            $requestId = 0;
+        if ($requestId === null) {
+            /**
+             * Submit new request for report
+             */
+            try {
+                $requestId = (int)$this->service->RequestReport(
+                    '_GET_MERCHANT_LISTINGS_ALL_DATA_'
+                );
+            } catch (\Exception $exception) {
+                $requestId = 0;
+            }
+
+            return $requestId;
         }
 
-        return $requestId;
+        /**
+         * Retrieve a requested report by requestId and returns a Product array
+         */
+        $products = [];
+        try {
+            $stocks = $this->service->GetReport($requestId);
+
+            foreach ($stocks as $stock) {
+                $product = new Product();
+
+                $this->stockToProduct($stock, $product);
+
+                $products[] = $product;
+            }
+        } catch (\Exception $exception) {
+            return $products;
+        }
     }
 
     /**
@@ -296,5 +299,55 @@ class AmazonMws extends AbstractAdapter
         $response = $this->service->updateStock($updates);
 
         return ($response['FeedProcessingStatus'] === '_SUBMITTED_' ? true : false);
+    }
+
+    /**
+     * Fulfillment method selection
+     *
+     * MFN / FBM: Merchant Fulfilled Network / "fulfillment by merchant"
+     * FBA: Fulfillment by Amazon
+     *
+     * @param string $string Fulfillment method code
+     * @return string
+     */
+    protected function getFulfillmentMethodByCode($string)
+    {
+        switch ($string) {
+            case 'AFN':
+            case 'FBA':
+            case 'AMAZON_EU':
+                $method = FulfillmentMethods::MARKETPLACE;
+                break;
+
+            case 'MFN':
+            case 'FBM':
+            case 'DEFAULT':
+            default:
+                $method =  FulfillmentMethods::SELLER;
+                break;
+        }
+
+        return $method;
+    }
+
+    /**
+     * Parse marketplace stock information for single product array and update Product.
+     * @param array $data
+     * @param Product $product
+     */
+    protected function stockToProduct(array $data, Product &$product)
+    {
+        $product->marketProductId = $data['listing-id'];
+        $product->vendorProductId = $data['seller-sku'];
+        $product->description = $data['item-name'];
+        $product->storedAmount = $data['quantity'];
+        $product->availableAmount = $data['quantity'];
+
+        /**
+         * Custom fields
+         */
+        $product->price = $data['price'];
+        $product->fulfillmentChannel = $this->getFulfillmentMethodByCode($data['fulfillment-channel']);
+        $product->status = $data['status'];
     }
 }
