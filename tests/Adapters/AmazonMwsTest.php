@@ -101,10 +101,12 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
      */
     public function canGetSellingList()
     {
-//        $this->class->test();
-//        $this->markTestIncomplete();
-//        $products = $this->class->getSellingList();
-//        var_dump(count($products));
+        $requestId = $this->class->getSellingList();
+        self::assertInternalType('integer', $requestId);
+        self::assertTrue($requestId !== 0);
+
+        $products = $this->class->getSellingList($requestId);
+        self::assertInternalType('array', $products);
     }
 
     /**

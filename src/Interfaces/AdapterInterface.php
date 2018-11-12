@@ -49,9 +49,9 @@ interface AdapterInterface
     public function completeSale(Transaction $trData);
 
     /**
-     * Returns a product array of available marketplace items
+     * Returns a product array of available marketplace items or a request number to fetch
      *
-     * @return Product[]
+     * @return Product[]|int
      */
     public function getSellingList();
 
