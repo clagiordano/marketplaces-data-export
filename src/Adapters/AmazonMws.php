@@ -280,8 +280,10 @@ class AmazonMws extends AbstractAdapter
                 $products[] = $product;
             }
         } catch (\Exception $exception) {
-            return $products;
+            $products = null;
         }
+
+        return $products;
     }
 
     /**
