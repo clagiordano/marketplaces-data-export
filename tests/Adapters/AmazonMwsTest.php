@@ -98,6 +98,7 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @group sellinglist
+     * @group sellersellinglist
      */
     public function canGetSellingList()
     {
@@ -105,7 +106,26 @@ class AmazonMwsTest extends \PHPUnit_Framework_TestCase
         self::assertInternalType('integer', $requestId);
         self::assertTrue($requestId !== 0);
 
+        sleep(30);
+
         $products = $this->class->getSellingList($requestId);
+        self::assertInternalType('array', $products);
+    }
+
+    /**
+     * @test
+     * @group sellinglist
+     * @group marketplacesellinglist
+     */
+    public function canGetMarkeetplaceSellingList()
+    {
+        $requestId = $this->class->getSellingList(null, FulfillmentMethods::MARKETPLACE);
+        self::assertInternalType('integer', $requestId);
+        self::assertTrue($requestId !== 0);
+
+        sleep(30);
+
+        $products = $this->class->getSellingList($requestId, FulfillmentMethods::MARKETPLACE);
         self::assertInternalType('array', $products);
     }
 

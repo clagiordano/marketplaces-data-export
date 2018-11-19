@@ -248,16 +248,19 @@ class AmazonMws extends AbstractAdapter
     /**
      * @inheritDoc
      */
-    public function getSellingList($requestId = null)
+    public function getSellingList($requestId = null, $fulfillmentType = null)
     {
+        $reportType = '_GET_MERCHANT_LISTINGS_ALL_DATA_';
+        if ($fulfillmentType === FulfillmentMethods::MARKETPLACE) {
+            $reportType = '_GET_FBA_MYI_ALL_INVENTORY_DATA_';
+        }
+
         if ($requestId === null) {
             /**
              * Submit new request for report
              */
             try {
-                $requestId = (int)$this->service->RequestReport(
-                    '_GET_MERCHANT_LISTINGS_ALL_DATA_'
-                );
+                $requestId = (int)$this->service->RequestReport($reportType);
             } catch (\Exception $exception) {
                 $requestId = 0;
             }
@@ -275,7 +278,11 @@ class AmazonMws extends AbstractAdapter
             foreach ($stocks as $stock) {
                 $product = new Product();
 
-                $this->stockToProduct($stock, $product);
+                if ($fulfillmentType === FulfillmentMethods::MARKETPLACE) {
+                    $this->fbastockToProduct($stock, $product);
+                } else {
+                    $this->stockToProduct($stock, $product);
+                }
 
                 $products[] = $product;
             }
@@ -351,5 +358,26 @@ class AmazonMws extends AbstractAdapter
         $product->price = $data['price'];
         $product->fulfillmentChannel = $this->getFulfillmentMethodByCode($data['fulfillment-channel']);
         $product->status = $data['status'];
+    }
+
+    /**
+     * Parse marketplace stock information for single product array and update Product.
+     * @param array $data
+     * @param Product $product
+     */
+    protected function fbastockToProduct(array $data, Product &$product)
+    {
+        $product->marketProductId = $data['sku'];
+        $product->vendorProductId = $data['fnsku'];
+        $product->description = $data['product-name'];
+        $product->storedAmount = $data['afn-total-quantity'];
+        $product->availableAmount = $data['afn-total-quantity'];
+
+        /**
+         * Custom fields
+         */
+        $product->price = $data['your-price'];
+        $product->fulfillmentChannel = $this->getFulfillmentMethodByCode('FBA');
+        $product->status = ($data['afn-listing-exists'] === 'Yes' ? 'Active' : 'Inactive');
     }
 }
