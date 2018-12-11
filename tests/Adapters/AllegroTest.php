@@ -4,12 +4,13 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 
 use clagiordano\MarketplacesDataExport\Adapters\Allegro;
 use clagiordano\MarketplacesDataExport\Config;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AllegroTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class AllegroTest extends \PHPUnit_Framework_TestCase
+class AllegroTest extends TestCase
 {
     /** @var Allegro $adapter */
     protected $adapter = null;

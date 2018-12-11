@@ -3,12 +3,13 @@
 namespace clagiordano\MarketplacesDataExport\Tests;
 
 use clagiordano\MarketplacesDataExport\Product;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ProductTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class ProductTest extends \PHPUnit_Framework_TestCase
+class ProductTest extends TestCase
 {
     /** @var Product $class */
     protected $class = null;

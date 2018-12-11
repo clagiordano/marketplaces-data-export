@@ -3,12 +3,13 @@
 namespace clagiordano\MarketplacesDataExport\Tests;
 
 use clagiordano\MarketplacesDataExport\Config;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConfigTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends TestCase
 {
     /** @var Config $class */
     protected $class = null;

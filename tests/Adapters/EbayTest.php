@@ -5,12 +5,13 @@ namespace clagiordano\MarketplacesDataExport\Tests\Adapters;
 use clagiordano\MarketplacesDataExport\Adapters\Ebay;
 use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\Transaction;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class EbayTest
  * @package Adapters
  */
-class EbayTest extends \PHPUnit_Framework_TestCase
+class EbayTest extends TestCase
 {
     /** @var Ebay $class */
     protected $class = null;

@@ -7,12 +7,13 @@ use clagiordano\MarketplacesDataExport\Config;
 use clagiordano\MarketplacesDataExport\FulfillmentMethods;
 use clagiordano\MarketplacesDataExport\Product;
 use clagiordano\MarketplacesDataExport\Transaction;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AmazonMwsTest
  * @package Adapters
  */
-class AmazonMwsTest extends \PHPUnit_Framework_TestCase
+class AmazonMwsTest extends TestCase
 {
     /** @var AmazonMws $class */
     protected $class = null;

@@ -3,12 +3,13 @@
 namespace clagiordano\MarketplacesDataExport\Tests;
 
 use clagiordano\MarketplacesDataExport\Shipping;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ShippingTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class ShippingTest extends \PHPUnit_Framework_TestCase
+class ShippingTest extends TestCase
 {
     /** @var Shipping $class */
     protected $class = null;

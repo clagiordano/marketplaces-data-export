@@ -3,12 +3,13 @@
 namespace clagiordano\MarketplacesDataExport\Tests;
 
 use clagiordano\MarketplacesDataExport\Transaction;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TransactionTest
  * @package clagiordano\MarketplacesDataExport\Tests
  */
-class TransactionTest extends \PHPUnit_Framework_TestCase
+class TransactionTest extends TestCase
 {
     /** @var Transaction $class */
     protected $class = null;
