@@ -113,12 +113,10 @@ class AmazonMws extends AbstractAdapter
                     $currentTrData->productData = $this->itemToProduct($item);
 
                     $currentTrData->quantityPurchased = $item['QuantityOrdered'];
-                    $currentTrData->purchasePrice = $item['ItemPrice']['Amount'];
-                    $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'];
+                    $currentTrData->purchasePrice = $item['ItemPrice']['Amount'] ?? null;
+                    $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'] ?? null;
                     $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
-                    if (isset($item['ShippingPrice'])) {
-                        $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
-                    }
+                    $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'] ?? null;
 
                     $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
                 }
