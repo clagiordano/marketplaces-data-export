@@ -78,35 +78,53 @@ class AmazonMws extends AbstractAdapter
             $intervalStart = new \DateTime();
         }
 
-        $orders = $this->service->ListOrders(
+        $orders = [];
+        $responseOrders = $this->service->ListOrders(
             $intervalStart,
             true,
             $shipmentStates,
             $fulfillmentChannel
         );
 
+        if (isset($responseOrders['NextToken'])) {
+            $orders = array_merge($orders, $responseOrders['ListOrders']);
+            while (isset($responseOrders['NextToken'])) {
+                $responseOrders = $this->service->ListOrdersByNextToken($responseOrders['NextToken']);
+
+                if (isset($responseOrders['ListOrders'])) {
+                    $orders = array_merge($orders, $responseOrders['ListOrders']);
+                } else {
+                    $orders = array_merge($orders, $responseOrders);
+                }
+            }
+        } else {
+            $orders = array_merge($orders, $responseOrders);
+        }
+
         $transactions = [];
         foreach ($orders as $transaction) {
             $trData = $this->buildTransaction($transaction);
 
-            $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
-            foreach ($items as $item) {
-                $currentTrData = clone $trData;
+            if ($transaction['AmazonOrderId']) {
+                $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+                foreach ($items as $item) {
+                    $currentTrData = clone $trData;
 
-                $currentTrData->productData = $this->itemToProduct($item);
+                    $currentTrData->productData = $this->itemToProduct($item);
 
-                $currentTrData->quantityPurchased = $item['QuantityOrdered'];
-                $currentTrData->purchasePrice = $item['ItemPrice']['Amount'];
-                $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'];
-                $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
-                if (isset($item['ShippingPrice'])) {
-                    $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
+                    $currentTrData->quantityPurchased = $item['QuantityOrdered'];
+                    $currentTrData->purchasePrice = $item['ItemPrice']['Amount'];
+                    $currentTrData->currency = $transaction['OrderTotal']['CurrencyCode'];
+                    $currentTrData->totalPrice = (float)($currentTrData->purchasePrice * $currentTrData->quantityPurchased);
+                    if (isset($item['ShippingPrice'])) {
+                        $currentTrData->shippingData->cost = $item['ShippingPrice']['Amount'];
+                    }
+
+                    $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
                 }
 
-                $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
+                sleep(2);
             }
-
-            sleep(2);
         }
 
         return $transactions;
@@ -123,14 +141,16 @@ class AmazonMws extends AbstractAdapter
         /**
          * Parse transaction data
          */
-        $trData->marketTransactionId = $transaction['AmazonOrderId'];
-        $trData->saleCounter = $transaction['AmazonOrderId'];
-        $trData->totalPrice = $transaction['OrderTotal']['Amount'];
-        $trData->currency = $transaction['OrderTotal']['CurrencyCode'];
-        $trData->transactionDate = $transaction['PurchaseDate'];
-        $trData->paidTime = $transaction['PurchaseDate'];
-        $trData->paymentMethod = $transaction['PaymentMethod'];
-        $trData->paymentMethod .= " ({$transaction['PaymentMethodDetails']['PaymentMethodDetail']})";
+        $trData->marketTransactionId = $transaction['AmazonOrderId'] ?? null;
+        $trData->saleCounter = $transaction['AmazonOrderId'] ?? null;
+        $trData->totalPrice = $transaction['OrderTotal']['Amount'] ?? 0;
+        $trData->currency = $transaction['OrderTotal']['CurrencyCode'] ?? null;
+        $trData->transactionDate = $transaction['PurchaseDate'] ?? null;
+        $trData->paidTime = $transaction['PurchaseDate'] ?? null;
+        if (isset($transaction['PaymentMethod'])) {
+            $trData->paymentMethod = $transaction['PaymentMethod'];
+            $trData->paymentMethod .= " ({$transaction['PaymentMethodDetails']['PaymentMethodDetail']})";
+        }
         $trData->paymentStatus = "";
         $trData->customerNotes = "";
 
@@ -169,18 +189,23 @@ class AmazonMws extends AbstractAdapter
             $trData->shippingData->postalCode = $transaction['ShippingAddress']['PostalCode'];
         }
 
-        $trData->shippingData->status = $transaction['OrderStatus'];
+        $trData->shippingData->status = $transaction['OrderStatus'] ?? null;
 
-        $trData->shippingData->fulfillmentMethod = $this->getFulfillmentMethodByCode($transaction['FulfillmentChannel']);
+        if (isset($transaction['FulfillmentChannel'])) {
+            $trData->shippingData->fulfillmentMethod = $this->getFulfillmentMethodByCode($transaction['FulfillmentChannel']);
+        }
 
         /**
          * Parse customer data
          */
-        $trData->customerData->customerName = $transaction['ShippingAddress']['Name'];
+        if (isset($transaction['ShippingAddress']) && isset($transaction['ShippingAddress']['Name'])) {
+            $trData->customerData->customerName = $transaction['ShippingAddress']['Name'];
+        }
+
         $trData->customerData->customerSurame = "";
         $trData->customerData->billingAddress = $trData->shippingData->address;
-        $trData->customerData->customerMail = $transaction['BuyerEmail'];
-        $trData->customerData->userId = $transaction['BuyerName'];
+        $trData->customerData->customerMail = $transaction['BuyerEmail'] ?? null;
+        $trData->customerData->userId = $transaction['BuyerName'] ?? null;
         $trData->customerData->country = $trData->shippingData->countryCode;
         $trData->customerData->postalCode = $trData->shippingData->postalCode;
 
