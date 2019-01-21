@@ -85,10 +85,13 @@ class AmazonMws extends AbstractAdapter
             $shipmentStates,
             $fulfillmentChannel
         );
+        sleep(5);
 
         if (isset($responseOrders['NextToken'])) {
             $orders = array_merge($orders, $responseOrders['ListOrders']);
             while (isset($responseOrders['NextToken'])) {
+                sleep(5);
+
                 $responseOrders = $this->service->ListOrdersByNextToken($responseOrders['NextToken']);
 
                 if (isset($responseOrders['ListOrders'])) {
@@ -121,7 +124,7 @@ class AmazonMws extends AbstractAdapter
                     $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
                 }
 
-                sleep(2);
+                sleep(5);
             }
         }
 
