@@ -202,7 +202,7 @@ class AmazonMws extends AbstractAdapter
                     $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
                 }
 
-                sleep(15);
+                sleep(6);
             }
         }
 
