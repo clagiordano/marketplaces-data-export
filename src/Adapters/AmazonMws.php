@@ -63,6 +63,71 @@ class AmazonMws extends AbstractAdapter
     }
 
     /**
+     * Returns orders preventing throttling with recursive strategy
+     *
+     * @param null $intervalStart
+     * @param null $intervalEnd
+     * @param array $shipmentStates
+     * @param string $fulfillmentChannel
+     * @return array
+     */
+    protected function getListOrders(
+        $intervalStart = null,
+        $intervalEnd = null,
+        $shipmentStates = [
+            'Unshipped',
+            'PartiallyShipped'
+        ],
+        $fulfillmentChannel = 'MFN'
+    ) {
+        unset($intervalEnd);
+
+        try {
+            var_dump('START_FETCH_ORDERS');
+            return $this->service->ListOrders(
+                $intervalStart,
+                true,
+                $shipmentStates,
+                $fulfillmentChannel
+            );
+        } catch (\Exception $exception) {
+            /**
+             * Request throttled
+             */
+            var_dump('THROTTLED, wait');
+            sleep(90);
+
+            return $this->getListOrders(
+                $intervalStart,
+                true,
+                $shipmentStates,
+                $fulfillmentChannel
+            );
+        }
+    }
+
+    /**
+     * Returns next token orders preventing throttling with recursive strategy
+     *
+     * @param string $nextToken
+     * @return array
+     */
+    protected function getListOrdersByNextToken($nextToken) {
+        try {
+            var_dump('START_FETCH_ORDERS_NEXT_TOKEN');
+            return $this->service->ListOrdersByNextToken($nextToken);
+        } catch (\Exception $exception) {
+            /**
+             * Request throttled
+             */
+            var_dump('THROTTLED, wait');
+            sleep(90);
+
+            return $this->getListOrdersByNextToken($nextToken);
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function getSellingTransactions(
@@ -79,20 +144,17 @@ class AmazonMws extends AbstractAdapter
         }
 
         $orders = [];
-        $responseOrders = $this->service->ListOrders(
+        $responseOrders = $this->getListOrders(
             $intervalStart,
-            true,
+            $intervalEnd,
             $shipmentStates,
             $fulfillmentChannel
         );
-        sleep(5);
 
         if (isset($responseOrders['NextToken'])) {
             $orders = array_merge($orders, $responseOrders['ListOrders']);
             while (isset($responseOrders['NextToken'])) {
-                sleep(5);
-
-                $responseOrders = $this->service->ListOrdersByNextToken($responseOrders['NextToken']);
+                $responseOrders = $this->getListOrdersByNextToken($responseOrders['NextToken']);
 
                 if (isset($responseOrders['ListOrders'])) {
                     $orders = array_merge($orders, $responseOrders['ListOrders']);
@@ -109,7 +171,16 @@ class AmazonMws extends AbstractAdapter
             $trData = $this->buildTransaction($transaction);
 
             if ($transaction['AmazonOrderId']) {
-                $items = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+                try {
+                    $tempItems = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+                    $items = $tempItems;
+                    var_dump('FETCHED_ITEMS');
+                }  catch (\Exception $exception) {
+                    var_dump($exception->getMessage());
+                    sleep(65);
+                    $retryItems = $this->service->ListOrderItems($transaction['AmazonOrderId']);
+                    $items = $retryItems;
+                }
                 foreach ($items as $item) {
                     $currentTrData = clone $trData;
 
@@ -124,7 +195,7 @@ class AmazonMws extends AbstractAdapter
                     $transactions[$transaction['AmazonOrderId']][] = $currentTrData;
                 }
 
-                sleep(5);
+                sleep(15);
             }
         }
 
