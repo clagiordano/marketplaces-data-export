@@ -83,7 +83,6 @@ class AmazonMws extends AbstractAdapter
         unset($intervalEnd);
 
         try {
-            var_dump('START_FETCH_ORDERS');
             return $this->service->ListOrders(
                 $intervalStart,
                 true,
@@ -94,7 +93,6 @@ class AmazonMws extends AbstractAdapter
             /**
              * Request throttled
              */
-            var_dump('THROTTLED, wait');
             sleep(90);
 
             return $this->getListOrders(
@@ -114,16 +112,33 @@ class AmazonMws extends AbstractAdapter
      */
     protected function getListOrdersByNextToken($nextToken) {
         try {
-            var_dump('START_FETCH_ORDERS_NEXT_TOKEN');
             return $this->service->ListOrdersByNextToken($nextToken);
         } catch (\Exception $exception) {
             /**
              * Request throttled
              */
-            var_dump('THROTTLED, wait');
             sleep(90);
 
             return $this->getListOrdersByNextToken($nextToken);
+        }
+    }
+
+    /**
+     * Returns order items preventing throttling with recursive strategy
+     *
+     * @param string $orderId
+     * @return array
+     */
+    protected function getListOrderItems($orderId) {
+        try {
+            return $this->service->ListOrderItems($orderId);
+        } catch (\Exception $exception) {
+            /**
+             * Request throttled
+             */
+            sleep(90);
+
+            return $this->getListOrderItems($orderId);
         }
     }
 
@@ -171,16 +186,8 @@ class AmazonMws extends AbstractAdapter
             $trData = $this->buildTransaction($transaction);
 
             if ($transaction['AmazonOrderId']) {
-                try {
-                    $tempItems = $this->service->ListOrderItems($transaction['AmazonOrderId']);
-                    $items = $tempItems;
-                    var_dump('FETCHED_ITEMS');
-                }  catch (\Exception $exception) {
-                    var_dump($exception->getMessage());
-                    sleep(65);
-                    $retryItems = $this->service->ListOrderItems($transaction['AmazonOrderId']);
-                    $items = $retryItems;
-                }
+                $items = $this->getListOrderItems($transaction['AmazonOrderId']);
+
                 foreach ($items as $item) {
                     $currentTrData = clone $trData;
 
